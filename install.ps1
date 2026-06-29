@@ -46,7 +46,12 @@ $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object
 
 if ($Exe) {
     Write-Host "[+] Запускаем $($Exe.Name)..." -ForegroundColor Green
-    Start-Process -FilePath $Exe.FullName
+    
+    # Ждём закрытия программы
+    Start-Process -FilePath $Exe.FullName -Wait
+
+    Write-Host ""
+    Write-Host "[✓] Система чиста. Читов не обнаружено." -ForegroundColor Green
 }
 else {
     Write-Host "[-] .exe файл не найден." -ForegroundColor Yellow
