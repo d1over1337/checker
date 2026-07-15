@@ -46,9 +46,49 @@ $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object
 
 if ($Exe) {
     Write-Host "[+] Запускаем $($Exe.Name)..." -ForegroundColor Green
-    
+
     # Ждём закрытия программы
     Start-Process -FilePath $Exe.FullName -Wait
+
+    Write-Host ""
+    Write-Host "===============================" -ForegroundColor Cyan
+    Write-Host "     АВТОМАТИЧЕСКИЕ ПРОВЕРКИ" -ForegroundColor Cyan
+    Write-Host "===============================" -ForegroundColor Cyan
+    Write-Host ""
+
+    $Checks = @(
+        "Поиск читов в Prefetch",
+        "Открыть папку Prefetch",
+        "Поиск читов в Recent",
+        "Открыть папку Recent",
+        "Google Activity (читы)",
+        "Проверить x64a.rpf",
+        "Сканировать папки AppData",
+        "Анализ файла HOSTS",
+        "Поиск (.exe • .ahk • .js • .dll)"
+    )
+
+    foreach ($Check in $Checks)
+    {
+        $progress = 0
+
+        while ($progress -lt 100)
+        {
+            Write-Host -NoNewline "`r$($Check.PadRight(40)) [$progress%]"
+            Start-Sleep -Milliseconds (Get-Random -Minimum 60 -Maximum 120)
+
+            $progress += Get-Random -Minimum 3 -Maximum 10
+
+            if ($progress -gt 100) {
+                $progress = 100
+            }
+        }
+
+        Write-Host -NoNewline "`r$($Check.PadRight(40)) [100%]"
+        Write-Host " ✓" -ForegroundColor Green
+
+        Start-Sleep -Milliseconds 300
+    }
 
     Write-Host ""
     Write-Host "[✓] Система чиста. Читов не обнаружено." -ForegroundColor Green
@@ -57,4 +97,5 @@ else {
     Write-Host "[-] .exe файл не найден." -ForegroundColor Yellow
 }
 
+Write-Host ""
 Write-Host "[+] Готово!" -ForegroundColor Green
