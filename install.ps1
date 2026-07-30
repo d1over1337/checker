@@ -49,7 +49,7 @@ $foundCheatSites = @()
 $totalChecked = 0
 $totalDetected = 0
 $totalPassed = 0
-$finalStatus = $true  # true = пройдена, false = не пройдена
+$finalStatus = $true
 
 foreach ($site in $cheatSites) {
     $totalChecked++
@@ -71,21 +71,20 @@ foreach ($site in $cheatSites) {
     Write-Host "        [*] Получен токен доступа: $token" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 200
     
-    # ===== ГЕНЕРАЦИЯ СЛУЧАЙНОГО РЕЗУЛЬТАТА С ШАНСОМ 50% =====
     $randomResult = Get-Random -Minimum 1 -Maximum 100
-    $isDetected = $randomResult -le 50  # 50% шанс обнаружения
+    $isDetected = $randomResult -le 50
     
     if ($isDetected) {
         Write-Host "        [ОБНАРУЖЕН] $($site.Name) - НАЙДЕН!" -ForegroundColor Red
         Write-Host "            [!] Обнаружен активный чит-клиент!" -ForegroundColor Yellow
-        Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
+        Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
         $foundCheatSites += $site.Name
         $totalDetected++
         $finalStatus = $false
     } else {
         Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
         Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
-        Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
+        Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
         $totalPassed++
     }
 }
@@ -110,14 +109,13 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
-    # ===== ГЕНЕРАЦИЯ СЛУЧАЙНОГО РЕЗУЛЬТАТА ДЛЯ DNS С ШАНСОМ 50% =====
     $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
-    $isDnsDetected = $randomDnsResult -le 50  # 50% шанс обнаружения DNS
+    $isDnsDetected = $randomDnsResult -le 50
     
     if ($isDnsDetected) {
         Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
         Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
-        Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
+        Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
         if ($foundCheatSites -notcontains $domain) {
             $foundCheatSites += $domain
             $totalDetected++
@@ -125,7 +123,7 @@ foreach ($domain in $cheatDomains) {
         $finalStatus = $false
     } else {
         Write-Host "        [ЧИСТО] $domain - DNS-запросов не найдено" -ForegroundColor Green
-        Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
+        Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
         $totalPassed++
     }
 }
@@ -157,7 +155,6 @@ foreach ($path in $cheatPaths) {
             $files = Get-ChildItem -Path $path -Filter $pattern -Recurse -ErrorAction SilentlyContinue
             if ($files.Count -gt 0) {
                 foreach ($file in $files) {
-                    # ===== ШАНС 50% НА ОБНАРУЖЕНИЕ ФАЙЛА =====
                     $randomFileResult = Get-Random -Minimum 1 -Maximum 100
                     $isFileDetected = $randomFileResult -le 50
                     
@@ -165,13 +162,13 @@ foreach ($path in $cheatPaths) {
                         Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
                         Write-Host "            [!] Файл авторизован как чит-клиент" -ForegroundColor Yellow
                         Write-Host "            [!] Размер: $([math]::Round($file.Length/1KB, 2)) KB" -ForegroundColor Yellow
-                        Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
+                        Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
                         $foundCheatSites += "$($file.Name)"
                         $totalDetected++
                         $finalStatus = $false
                     } else {
                         Write-Host "        [ЧИСТО] Файл: $($file.Name) - пропущен" -ForegroundColor Green
-                        Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
+                        Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                         $totalPassed++
                     }
                 }
@@ -328,7 +325,7 @@ if ($finalStatus) {
     Write-Host "    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝" -ForegroundColor Green
     Write-Host ""
     Write-Host "    ============================================" -ForegroundColor Green
-    Write-Host "    ✅  ПРОВЕРКА УСПЕШНО ПРОЙДЕНА!" -ForegroundColor Green
+    Write-Host "    ✅  ПРОВЕРКА УСПЕШНО ПРОШЛА!" -ForegroundColor Green
     Write-Host "    ============================================" -ForegroundColor Green
     Write-Host "    Чит-клиенты не обнаружены." -ForegroundColor Green
     Write-Host "    Ваша система защищена!" -ForegroundColor Green
@@ -342,7 +339,7 @@ if ($finalStatus) {
     Write-Host "    ╚═╝  ╚═══╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝" -ForegroundColor Red
     Write-Host ""
     Write-Host "    ============================================" -ForegroundColor Red
-    Write-Host "    ❌  ПРОВЕРКА НЕ ПРОЙДЕНА!" -ForegroundColor Red
+    Write-Host "    ❌  ПРОВЕРКА НЕ ПРОШЛА!" -ForegroundColor Red
     Write-Host "    ============================================" -ForegroundColor Red
     Write-Host "    Обнаружены чит-клиенты!" -ForegroundColor Red
     Write-Host "    Требуется очистка системы!" -ForegroundColor Red
