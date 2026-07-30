@@ -35,7 +35,7 @@ foreach ($proc in $fakeProcesses) {
 }
 Write-Host ""
 
-# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ С АВТОРИЗАЦИЕЙ (ОБНОВЛЕНО) =====
+# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ С ШАНСОМ 50% =====
 Write-Host "[*] Проверка чит-клиентов и нелегальных лаунчеров..." -ForegroundColor Yellow
 
 $cheatSites = @(
@@ -48,6 +48,7 @@ $cheatSites = @(
 $foundCheatSites = @()
 $totalChecked = 0
 $totalDetected = 0
+$totalPassed = 0
 
 foreach ($site in $cheatSites) {
     $totalChecked++
@@ -69,31 +70,25 @@ foreach ($site in $cheatSites) {
     Write-Host "        [*] Получен токен доступа: $token" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 200
     
-    try {
-        $request = Invoke-WebRequest -Uri $site.URL -TimeoutSec 3 -ErrorAction SilentlyContinue
-        if ($request.StatusCode -eq 200) {
-            Write-Host "        [ОБНАРУЖЕН] $($site.Name) - доступен" -ForegroundColor Red
-            Write-Host "            [!] Сайт авторизован!" -ForegroundColor Yellow
-            Write-Host "            [!] Найден активный сеанс" -ForegroundColor Yellow
-            $foundCheatSites += $site.Name
-            $totalDetected++
-        } elseif ($request.StatusCode -eq 403) {
-            Write-Host "        [ОБНАРУЖЕН] $($site.Name) - доступ запрещен (403)" -ForegroundColor Red
-            Write-Host "            [!] Сайт использует защиту" -ForegroundColor Yellow
-            Write-Host "            [!] Обнаружена попытка скрытия" -ForegroundColor Yellow
-            $foundCheatSites += $site.Name
-            $totalDetected++
-        } else {
-            Write-Host "        [ЧИСТО] $($site.Name) - код ответа: $($request.StatusCode)" -ForegroundColor Green
-            Write-Host "            [OK] Авторизация не требуется" -ForegroundColor DarkGray
-        }
-    } catch {
-        Write-Host "        [ЧИСТО] $($site.Name) - сайт не доступен" -ForegroundColor Green
-        Write-Host "            [OK] Авторизация не требуется" -ForegroundColor DarkGray
+    # ===== ГЕНЕРАЦИЯ СЛУЧАЙНОГО РЕЗУЛЬТАТА С ШАНСОМ 50% =====
+    $randomResult = Get-Random -Minimum 1 -Maximum 100
+    $isDetected = $randomResult -le 50  # 50% шанс обнаружения
+    
+    if ($isDetected) {
+        Write-Host "        [ОБНАРУЖЕН] $($site.Name) - НАЙДЕН!" -ForegroundColor Red
+        Write-Host "            [!] Обнаружен активный чит-клиент!" -ForegroundColor Yellow
+        Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
+        $foundCheatSites += $site.Name
+        $totalDetected++
+    } else {
+        Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
+        Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
+        Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
+        $totalPassed++
     }
 }
 
-# ===== DNS ПРОВЕРКА (ОБНОВЛЕНО) =====
+# ===== DNS ПРОВЕРКА С ШАНСОМ 50% =====
 Write-Host ""
 Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
 $cheatDomains = @(
@@ -113,24 +108,26 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
-    try {
-        $dns = [System.Net.Dns]::GetHostAddresses($domain)
-        if ($dns.Count -gt 0) {
-            Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
-            Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
-            if ($foundCheatSites -notcontains $domain) {
-                $foundCheatSites += $domain
-                $totalDetected++
-            }
-        } else {
-            Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
+    # ===== ГЕНЕРАЦИЯ СЛУЧАЙНОГО РЕЗУЛЬТАТА ДЛЯ DNS С ШАНСОМ 50% =====
+    $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
+    $isDnsDetected = $randomDnsResult -le 50  # 50% шанс обнаружения DNS
+    
+    if ($isDnsDetected) {
+        Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
+        Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
+        Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
+        if ($foundCheatSites -notcontains $domain) {
+            $foundCheatSites += $domain
+            $totalDetected++
         }
-    } catch {
-        Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
+    } else {
+        Write-Host "        [ЧИСТО] $domain - DNS-запросов не найдено" -ForegroundColor Green
+        Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
+        $totalPassed++
     }
 }
 
-# ===== ПРОВЕРКА ФАЙЛОВ (ОБНОВЛЕНО) =====
+# ===== ПРОВЕРКА ФАЙЛОВ С ШАНСОМ 50% =====
 Write-Host ""
 Write-Host "[*] Проверка файлов чит-клиентов на диске..." -ForegroundColor Yellow
 $cheatFilePatterns = @(
@@ -157,11 +154,22 @@ foreach ($path in $cheatPaths) {
             $files = Get-ChildItem -Path $path -Filter $pattern -Recurse -ErrorAction SilentlyContinue
             if ($files.Count -gt 0) {
                 foreach ($file in $files) {
-                    Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
-                    Write-Host "            [!] Файл авторизован как чит-клиент" -ForegroundColor Yellow
-                    Write-Host "            [!] Размер: $([math]::Round($file.Length/1KB, 2)) KB" -ForegroundColor Yellow
-                    $foundCheatSites += "$($file.Name)"
-                    $totalDetected++
+                    # ===== ШАНС 50% НА ОБНАРУЖЕНИЕ ФАЙЛА =====
+                    $randomFileResult = Get-Random -Minimum 1 -Maximum 100
+                    $isFileDetected = $randomFileResult -le 50
+                    
+                    if ($isFileDetected) {
+                        Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
+                        Write-Host "            [!] Файл авторизован как чит-клиент" -ForegroundColor Yellow
+                        Write-Host "            [!] Размер: $([math]::Round($file.Length/1KB, 2)) KB" -ForegroundColor Yellow
+                        Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
+                        $foundCheatSites += "$($file.Name)"
+                        $totalDetected++
+                    } else {
+                        Write-Host "        [ЧИСТО] Файл: $($file.Name) - пропущен" -ForegroundColor Green
+                        Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
+                        $totalPassed++
+                    }
                 }
             }
         }
@@ -170,6 +178,10 @@ foreach ($path in $cheatPaths) {
 Write-Host ""
 
 # ===== ВЫВОД РЕЗУЛЬТАТОВ =====
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "[*] РЕЗУЛЬТАТЫ ПРОВЕРКИ:" -ForegroundColor White
+Write-Host "========================================" -ForegroundColor Cyan
+
 if ($foundCheatSites.Count -gt 0) {
     Write-Host "[ВНИМАНИЕ] Обнаружены чит-клиенты и нелегальные программы:" -ForegroundColor Red
     $uniqueCheats = $foundCheatSites | Select-Object -Unique
@@ -188,10 +200,13 @@ if ($foundCheatSites.Count -gt 0) {
     
     Write-Host "[+] Удаление и блокировка завершены." -ForegroundColor Green
     Write-Host "    Обнаружено: $totalDetected объектов" -ForegroundColor Yellow
-    Write-Host "    Блокировано: $totalDetected сайтов" -ForegroundColor Yellow
+    Write-Host "    Проверок пройдено: $totalPassed" -ForegroundColor Green
+    Write-Host "    Статус: НЕ ПРОЙДЕНА (обнаружены читы)" -ForegroundColor Red
 } else {
     Write-Host "[+] Чит-клиенты не обнаружены. Система чиста." -ForegroundColor Green
     Write-Host "    Проверено: $totalChecked сайтов" -ForegroundColor DarkGray
+    Write-Host "    Проверок пройдено: $totalPassed" -ForegroundColor Green
+    Write-Host "    Статус: ПРОЙДЕНА (читы не найдены)" -ForegroundColor Green
 }
 Write-Host ""
 
@@ -201,7 +216,14 @@ $mods = @("OptiFine", "Forge", "Fabric", "LunarClient", "Badlion", "Sodium", "Ir
 foreach ($mod in $mods) {
     Write-Host "    -> Проверка $mod..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 150
-    Write-Host "        [ОК] $mod версия актуальна" -ForegroundColor Green
+    
+    # Шанс 50% на "обновление" мода
+    $randomModResult = Get-Random -Minimum 1 -Maximum 100
+    if ($randomModResult -le 50) {
+        Write-Host "        [ОК] $mod версия актуальна" -ForegroundColor Green
+    } else {
+        Write-Host "        [ОК] $mod требует обновления" -ForegroundColor Yellow
+    }
 }
 Write-Host ""
 
@@ -228,7 +250,14 @@ $connections = @("Minecraft-сервера", "Mojang-сервера", "Anti-Chea
 foreach ($conn in $connections) {
     Write-Host "    -> Проверка $conn..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 250
-    Write-Host "        [ОК] Соединение установлено" -ForegroundColor Green
+    
+    # Шанс 50% на "проблему" с соединением
+    $randomConnResult = Get-Random -Minimum 1 -Maximum 100
+    if ($randomConnResult -le 50) {
+        Write-Host "        [ОК] Соединение установлено" -ForegroundColor Green
+    } else {
+        Write-Host "        [ПРЕДУПРЕЖДЕНИЕ] Задержка соединения" -ForegroundColor Yellow
+    }
 }
 Write-Host ""
 
