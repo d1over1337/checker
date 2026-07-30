@@ -468,5 +468,3 @@ if ($choice -eq "1" -or $choice -eq "2") {
     Read-Host
     
 } else {
-    Write-Host ""
-    Write-Host "    [
