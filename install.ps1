@@ -35,15 +35,14 @@ foreach ($proc in $fakeProcesses) {
 }
 Write-Host ""
 
-# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ С АВТОРИЗАЦИЕЙ =====
+# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ С АВТОРИЗАЦИЕЙ (ОБНОВЛЕНО) =====
 Write-Host "[*] Проверка чит-клиентов и нелегальных лаунчеров..." -ForegroundColor Yellow
 
 $cheatSites = @(
-    @{Name = "VexSide"; URL = "https://vexside.net"},
-    @{Name = "NURSURAT"; URL = "https://nursurat.net"},
-    @{Name = "Katlawan"; URL = "https://katlawan.net"},
-    @{Name = "Vilka"; URL = "https://vilka.net"},
-    @{Name = "Arbuz"; URL = "https://arbuz.net"}
+    @{Name = "Nursultan"; URL = "https://nursultan.fun"},
+    @{Name = "Wexside"; URL = "https://wexside.ru"},
+    @{Name = "Arbuz"; URL = "https://arbuz.cc"},
+    @{Name = "WildClient"; URL = "https://wildclient.org"}
 )
 
 $foundCheatSites = @()
@@ -78,6 +77,12 @@ foreach ($site in $cheatSites) {
             Write-Host "            [!] Найден активный сеанс" -ForegroundColor Yellow
             $foundCheatSites += $site.Name
             $totalDetected++
+        } elseif ($request.StatusCode -eq 403) {
+            Write-Host "        [ОБНАРУЖЕН] $($site.Name) - доступ запрещен (403)" -ForegroundColor Red
+            Write-Host "            [!] Сайт использует защиту" -ForegroundColor Yellow
+            Write-Host "            [!] Обнаружена попытка скрытия" -ForegroundColor Yellow
+            $foundCheatSites += $site.Name
+            $totalDetected++
         } else {
             Write-Host "        [ЧИСТО] $($site.Name) - код ответа: $($request.StatusCode)" -ForegroundColor Green
             Write-Host "            [OK] Авторизация не требуется" -ForegroundColor DarkGray
@@ -88,15 +93,14 @@ foreach ($site in $cheatSites) {
     }
 }
 
-# ===== DNS ПРОВЕРКА (ИСПРАВЛЕНО) =====
+# ===== DNS ПРОВЕРКА (ОБНОВЛЕНО) =====
 Write-Host ""
 Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
 $cheatDomains = @(
-    "vexside.net",
-    "nursurat.net",
-    "katlawan.net",
-    "vilka.net",
-    "arbuz.net"
+    "nursultan.fun",
+    "wexside.ru",
+    "arbuz.cc",
+    "wildclient.org"
 )
 
 foreach ($domain in $cheatDomains) {
@@ -109,7 +113,6 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
-    # ИСПРАВЛЕНО: УБРАН -ErrorAction, ИСПОЛЬЗУЕТСЯ try-catch
     try {
         $dns = [System.Net.Dns]::GetHostAddresses($domain)
         if ($dns.Count -gt 0) {
@@ -127,15 +130,14 @@ foreach ($domain in $cheatDomains) {
     }
 }
 
-# ===== ПРОВЕРКА ФАЙЛОВ =====
+# ===== ПРОВЕРКА ФАЙЛОВ (ОБНОВЛЕНО) =====
 Write-Host ""
 Write-Host "[*] Проверка файлов чит-клиентов на диске..." -ForegroundColor Yellow
 $cheatFilePatterns = @(
-    "vexside*.jar",
-    "nursurat*.jar",
-    "katlawan*.jar",
-    "vilka*.jar",
+    "nursultan*.jar",
+    "wexside*.jar",
     "arbuz*.jar",
+    "wildclient*.jar",
     "*cheat*.jar",
     "*hack*.jar",
     "*client*.jar"
