@@ -53,6 +53,7 @@ $foundCheats = @()
 foreach ($cheat in $cheats) {
     Write-Host "    -> Поиск $cheat..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 200
+    # ИСПРАВЛЕНО: используем переменную для Random
     $randomNum = Get-Random -Minimum 1 -Maximum 10
     if ($randomNum -eq 1) {
         Write-Host "        [ОБНАРУЖЕН] $cheat" -ForegroundColor Red
