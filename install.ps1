@@ -35,7 +35,7 @@ foreach ($proc in $fakeProcesses) {
 }
 Write-Host ""
 
-# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ (САЙТЫ) =====
+# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ С АВТОРИЗАЦИЕЙ =====
 Write-Host "[*] Проверка чит-клиентов и нелегальных лаунчеров..." -ForegroundColor Yellow
 
 $cheatSites = @(
@@ -53,23 +53,45 @@ $totalDetected = 0
 foreach ($site in $cheatSites) {
     $totalChecked++
     Write-Host "    -> Проверка $($site.Name)..." -ForegroundColor Gray
+    Start-Sleep -Milliseconds 200
+    
+    # Фейковая авторизация на сайте
+    Write-Host "        [*] Подключение к $($site.URL)..." -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 300
+    
+    # Генерация фейкового логина и пароля
+    $fakeLogin = "user_" + (Get-Random -Minimum 1000 -Maximum 9999).ToString()
+    $fakePass = "pass_" + (Get-Random -Minimum 1000 -Maximum 9999).ToString()
+    
+    Write-Host "        [*] Отправка данных авторизации..." -ForegroundColor DarkGray
+    Write-Host "            Логин: $fakeLogin" -ForegroundColor DarkGray
+    Write-Host "            Пароль: ********" -ForegroundColor DarkGray
+    Start-Sleep -Milliseconds 400
+    
+    # Генерация случайного токена
+    $token = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 32 | ForEach-Object { [char]$_ })
+    Write-Host "        [*] Получен токен доступа: $token" -ForegroundColor DarkGray
+    Start-Sleep -Milliseconds 200
     
     try {
         $request = Invoke-WebRequest -Uri $site.URL -TimeoutSec 3 -ErrorAction SilentlyContinue
         if ($request.StatusCode -eq 200) {
             Write-Host "        [ОБНАРУЖЕН] $($site.Name) - доступен" -ForegroundColor Red
+            Write-Host "            [!] Сайт авторизован!" -ForegroundColor Yellow
+            Write-Host "            [!] Найден активный сеанс" -ForegroundColor Yellow
             $foundCheatSites += $site.Name
             $totalDetected++
         } else {
-            Write-Host "        [ЧИСТО] $($site.Name)" -ForegroundColor Green
+            Write-Host "        [ЧИСТО] $($site.Name) - код ответа: $($request.StatusCode)" -ForegroundColor Green
+            Write-Host "            [OK] Авторизация не требуется" -ForegroundColor DarkGray
         }
     } catch {
-        Write-Host "        [ЧИСТО] $($site.Name)" -ForegroundColor Green
+        Write-Host "        [ЧИСТО] $($site.Name) - сайт не доступен" -ForegroundColor Green
+        Write-Host "            [OK] Авторизация не требуется" -ForegroundColor DarkGray
     }
 }
 
-# Фейковая проверка DNS-запросов к чит-серверам
+# Фейковая проверка DNS-запросов к чит-серверам с авторизацией
 Write-Host ""
 Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
 $cheatDomains = @(
@@ -83,14 +105,25 @@ $cheatDomains = @(
 foreach ($domain in $cheatDomains) {
     Write-Host "    -> Проверка $domain..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 200
+    
+    # Фейковая авторизация через DNS
+    Write-Host "        [*] Проверка DNS-записи..." -ForegroundColor DarkGray
+    Start-Sleep -Milliseconds 150
+    $dnsToken = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 16 | ForEach-Object { [char]$_ })
+    Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
+    Start-Sleep -Milliseconds 150
+    
     try {
         $dns = [System.Net.Dns]::GetHostAddresses($domain) -ErrorAction SilentlyContinue
         if ($dns) {
             Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
+            Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
             if ($foundCheatSites -notcontains $domain) {
                 $foundCheatSites += $domain
                 $totalDetected++
             }
+        } else {
+            Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
         }
     } catch {
         Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
@@ -107,7 +140,8 @@ $cheatFilePatterns = @(
     "vilka*.jar",
     "arbuz*.jar",
     "*cheat*.jar",
-    "*hack*.jar"
+    "*hack*.jar",
+    "*client*.jar"
 )
 
 $cheatPaths = @(
@@ -125,6 +159,8 @@ foreach ($path in $cheatPaths) {
             if ($files.Count -gt 0) {
                 foreach ($file in $files) {
                     Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
+                    Write-Host "            [!] Файл авторизован как чит-клиент" -ForegroundColor Yellow
+                    Write-Host "            [!] Размер: $([math]::Round($file.Length/1KB, 2)) KB" -ForegroundColor Yellow
                     $foundCheatSites += "$($file.Name)"
                     $totalDetected++
                 }
@@ -147,14 +183,17 @@ if ($foundCheatSites.Count -gt 0) {
     
     # Фейковое добавление в hosts для блокировки
     Write-Host "    [OK] Добавление сайтов в блок-лист..." -ForegroundColor DarkGray
+    Write-Host "    [OK] Отзыв токенов авторизации..." -ForegroundColor DarkGray
     Write-Host "    [OK] Очистка временных файлов..." -ForegroundColor DarkGray
     Write-Host "    [OK] Удаление jar-файлов..." -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 500
     
     Write-Host "[+] Удаление и блокировка завершены." -ForegroundColor Green
     Write-Host "    Обнаружено: $totalDetected объектов" -ForegroundColor Yellow
+    Write-Host "    Блокировано: $totalDetected сайтов" -ForegroundColor Yellow
 } else {
     Write-Host "[+] Чит-клиенты не обнаружены. Система чиста." -ForegroundColor Green
+    Write-Host "    Проверено: $totalChecked сайтов" -ForegroundColor DarkGray
 }
 Write-Host ""
 
