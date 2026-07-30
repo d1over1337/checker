@@ -255,7 +255,7 @@ if ($choice -eq "1" -or $choice -eq "2") {
                 $randomFake = Get-Random -Minimum 1 -Maximum 100
                 if ($randomFake -le 15) {
                     Write-Host "        [ПРЕДУПРЕЖДЕНИЕ] $($site.Name) - подозрительная активность" -ForegroundColor Yellow
-                    Write-Host "            [!] Обнаружен可疑 DNS-запрос" -ForegroundColor Yellow
+                    Write-Host "            [!] Обнаружен подозрительный DNS-запрос" -ForegroundColor Yellow
                     Write-Host "            [!] Статус проверки: ТРЕБУЕТ ВНИМАНИЯ" -ForegroundColor Yellow
                     $totalDetected++
                 } else {
@@ -557,4 +557,4 @@ if ($choice -eq "1" -or $choice -eq "2") {
     
 } else {
     Write-Host ""
-    Write-Host "[ERROR] Не
+    Write-Host "[ERROR] Неверный выбор. Пожалуйста, запустите скрипт за
