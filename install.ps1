@@ -88,7 +88,7 @@ foreach ($site in $cheatSites) {
     }
 }
 
-# Фейковая проверка DNS-запросов к чит-серверам с авторизацией
+# Фейковая проверка DNS-запросов к чит-серверам
 Write-Host ""
 Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
 $cheatDomains = @(
@@ -109,8 +109,8 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
+    # ИСПРАВЛЕНО: убран -ErrorAction, добавлен try-catch
     try {
-        # ИСПРАВЛЕНО: правильный синтаксис для DNS
         $dns = [System.Net.Dns]::GetHostAddresses($domain)
         if ($dns) {
             Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
