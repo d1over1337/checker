@@ -23,7 +23,7 @@ Start-Sleep -Milliseconds 500
 
 # Фейковая проверка процессов
 Write-Host "[*] Проверка запущенных процессов..." -ForegroundColor Yellow
-$fakeProcesses = @("javaw.exe", "minecraft.exe", "launcher.exe")
+$fakeProcesses = @("javaw.exe", "minecraft.exe", "launcher.exe", "minecraftlauncher.exe", "badlion.exe", "lunarclient.exe")
 foreach ($proc in $fakeProcesses) {
     Write-Host "    -> Проверка $proc..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 300
@@ -35,36 +35,130 @@ foreach ($proc in $fakeProcesses) {
 }
 Write-Host ""
 
-# Фейковая проверка читов
-Write-Host "[*] Сканирование на наличие читов..." -ForegroundColor Yellow
-$cheats = @(
-    "X-Ray", 
-    "KillAura", 
-    "AutoClicker", 
-    "Reach", 
-    "FlyHack", 
-    "SpeedHack", 
-    "CrystalAura",
-    "Nuker",
-    "Scaffold",
-    "BHOP"
+# ===== ПРОВЕРКА ЧИТ-КЛИЕНТОВ (САЙТЫ) =====
+Write-Host "[*] Проверка чит-клиентов и нелегальных лаунчеров..." -ForegroundColor Yellow
+
+$cheatSites = @(
+    @{Name = "VexSide"; URL = "https://vexside.net"},
+    @{Name = "NURSURAT"; URL = "https://nursurat.net"},
+    @{Name = "Katlawan"; URL = "https://katlawan.net"},
+    @{Name = "Vilka"; URL = "https://vilka.net"},
+    @{Name = "Arbuz"; URL = "https://arbuz.net"}
 )
-$foundCheats = @()
-foreach ($cheat in $cheats) {
-    Write-Host "    -> Поиск $cheat..." -ForegroundColor Gray
+
+$foundCheatSites = @()
+$totalChecked = 0
+$totalDetected = 0
+
+foreach ($site in $cheatSites) {
+    $totalChecked++
+    Write-Host "    -> Проверка $($site.Name)..." -ForegroundColor Gray
+    Start-Sleep -Milliseconds 300
+    
+    try {
+        $request = Invoke-WebRequest -Uri $site.URL -TimeoutSec 3 -ErrorAction SilentlyContinue
+        if ($request.StatusCode -eq 200) {
+            Write-Host "        [ОБНАРУЖЕН] $($site.Name) - доступен" -ForegroundColor Red
+            $foundCheatSites += $site.Name
+            $totalDetected++
+        } else {
+            Write-Host "        [ЧИСТО] $($site.Name)" -ForegroundColor Green
+        }
+    } catch {
+        Write-Host "        [ЧИСТО] $($site.Name)" -ForegroundColor Green
+    }
+}
+
+# Фейковая проверка DNS-запросов к чит-серверам
+Write-Host ""
+Write-Host "[*] Анализ DNS-запросов к чит-серверам..." -ForegroundColor Yellow
+$cheatDomains = @(
+    "vexside.net",
+    "nursurat.net",
+    "katlawan.net",
+    "vilka.net",
+    "arbuz.net"
+)
+
+foreach ($domain in $cheatDomains) {
+    Write-Host "    -> Проверка $domain..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 200
-    # ИСПРАВЛЕНО: используем переменную для Random
-    $randomNum = Get-Random -Minimum 1 -Maximum 10
-    if ($randomNum -eq 1) {
-        Write-Host "        [ОБНАРУЖЕН] $cheat" -ForegroundColor Red
-        $foundCheats += $cheat
-    } else {
-        Write-Host "        [ЧИСТО] $cheat" -ForegroundColor Green
+    try {
+        $dns = [System.Net.Dns]::GetHostAddresses($domain) -ErrorAction SilentlyContinue
+        if ($dns) {
+            Write-Host "        [ОБНАРУЖЕН] DNS-запрос к $domain" -ForegroundColor Red
+            if ($foundCheatSites -notcontains $domain) {
+                $foundCheatSites += $domain
+                $totalDetected++
+            }
+        }
+    } catch {
+        Write-Host "        [ЧИСТО] $domain" -ForegroundColor Green
+    }
+}
+
+# Фейковая проверка файлов чит-клиентов на диске
+Write-Host ""
+Write-Host "[*] Проверка файлов чит-клиентов на диске..." -ForegroundColor Yellow
+$cheatFilePatterns = @(
+    "vexside*.jar",
+    "nursurat*.jar",
+    "katlawan*.jar",
+    "vilka*.jar",
+    "arbuz*.jar",
+    "*cheat*.jar",
+    "*hack*.jar"
+)
+
+$cheatPaths = @(
+    "$env:APPDATA\.minecraft\mods",
+    "$env:APPDATA\.minecraft\versions",
+    "$env:TEMP",
+    "$env:USERPROFILE\Downloads",
+    "$env:USERPROFILE\Desktop"
+)
+
+foreach ($path in $cheatPaths) {
+    if (Test-Path $path) {
+        foreach ($pattern in $cheatFilePatterns) {
+            $files = Get-ChildItem -Path $path -Filter $pattern -Recurse -ErrorAction SilentlyContinue
+            if ($files.Count -gt 0) {
+                foreach ($file in $files) {
+                    Write-Host "        [ОБНАРУЖЕН] Файл: $($file.Name)" -ForegroundColor Red
+                    $foundCheatSites += "$($file.Name)"
+                    $totalDetected++
+                }
+            }
+        }
     }
 }
 Write-Host ""
 
-# Фейковая проверка модов
+# ===== ВЫВОД РЕЗУЛЬТАТОВ ПО ЧИТ-КЛИЕНТАМ =====
+if ($foundCheatSites.Count -gt 0) {
+    Write-Host "[ВНИМАНИЕ] Обнаружены чит-клиенты и нелегальные программы:" -ForegroundColor Red
+    $uniqueCheats = $foundCheatSites | Select-Object -Unique
+    foreach ($cheat in $uniqueCheats) {
+        Write-Host "    - $cheat" -ForegroundColor Red
+    }
+    Write-Host ""
+    Write-Host "[*] Выполняется блокировка и удаление..." -ForegroundColor Yellow
+    Start-Sleep -Seconds 2
+    
+    # Фейковое добавление в hosts для блокировки
+    Write-Host "    [OK] Добавление сайтов в блок-лист..." -ForegroundColor DarkGray
+    Write-Host "    [OK] Очистка временных файлов..." -ForegroundColor DarkGray
+    Write-Host "    [OK] Удаление jar-файлов..." -ForegroundColor DarkGray
+    Start-Sleep -Milliseconds 500
+    
+    Write-Host "[+] Удаление и блокировка завершены." -ForegroundColor Green
+    Write-Host "    Обнаружено: $totalDetected объектов" -ForegroundColor Yellow
+} else {
+    Write-Host "[+] Чит-клиенты не обнаружены. Система чиста." -ForegroundColor Green
+}
+Write-Host ""
+
+# Продолжение фейкового сканирования (старые блоки)
 Write-Host "[*] Проверка модов Minecraft..." -ForegroundColor Yellow
 $mods = @(
     "OptiFine", 
@@ -109,21 +203,6 @@ foreach ($conn in $connections) {
     Write-Host "    -> Проверка $conn..." -ForegroundColor Gray
     Start-Sleep -Milliseconds 250
     Write-Host "        [ОК] Соединение установлено" -ForegroundColor Green
-}
-Write-Host ""
-
-# Фейковый анализ найденных читов
-if ($foundCheats.Count -gt 0) {
-    Write-Host "[ВНИМАНИЕ] Обнаружены подозрительные программы:" -ForegroundColor Red
-    foreach ($cheat in $foundCheats) {
-        Write-Host "    - $cheat" -ForegroundColor Red
-    }
-    Write-Host ""
-    Write-Host "[*] Выполняется удаление обнаруженных читов..." -ForegroundColor Yellow
-    Start-Sleep -Seconds 2
-    Write-Host "[+] Удаление завершено." -ForegroundColor Green
-} else {
-    Write-Host "[+] Читы не обнаружены. Система чиста." -ForegroundColor Green
 }
 Write-Host ""
 
