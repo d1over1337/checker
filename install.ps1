@@ -109,7 +109,7 @@ foreach ($domain in $cheatDomains) {
     Write-Host "        [*] DNS-токен: $dnsToken" -ForegroundColor DarkGray
     Start-Sleep -Milliseconds 150
     
-    # ИСПРАВЛЕНО: убран -ErrorAction, добавлен try-catch
+    # ИСПРАВЛЕНО: правильный синтаксис без -ErrorAction
     try {
         $dns = [System.Net.Dns]::GetHostAddresses($domain)
         if ($dns) {
